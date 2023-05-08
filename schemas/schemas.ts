@@ -36,6 +36,8 @@ import PurchaseInvoice from './app/PurchaseInvoice.json';
 import PurchaseInvoiceItem from './app/PurchaseInvoiceItem.json';
 import SalesInvoice from './app/SalesInvoice.json';
 import SalesInvoiceItem from './app/SalesInvoiceItem.json';
+import PriceList from './app/PriceList.json';
+import ItemPrice from './app/ItemPrice.json';
 import SetupWizard from './app/SetupWizard.json';
 import Tax from './app/Tax.json';
 import TaxDetail from './app/TaxDetail.json';
@@ -99,6 +101,9 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   InvoiceItem as Schema,
   SalesInvoiceItem as SchemaStub,
   PurchaseInvoiceItem as SchemaStub,
+
+  PriceList as Schema,
+  ItemPrice as Schema,
 
   Tax as Schema,
   TaxDetail as Schema,

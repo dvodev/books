@@ -18,6 +18,8 @@ import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
+import { PriceList } from './baseModels/PriceList/PriceList';
+import { ItemPrice } from './baseModels/ItemPrice/ItemPrice';
 import { Batch } from './inventory/Batch';
 import { SerialNo } from './inventory/SerialNo';
 import { InventorySettings } from './inventory/InventorySettings';
@@ -39,11 +41,13 @@ export const models = {
   Batch,
   Defaults,
   Item,
+  ItemPrice,
   JournalEntry,
   JournalEntryAccount,
   Party,
   Payment,
   PaymentFor,
+  PriceList,
   PrintSettings,
   PurchaseInvoice,
   PurchaseInvoiceItem,
