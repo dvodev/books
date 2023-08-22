@@ -38,6 +38,12 @@
       "required": true,
       "edit": true,
       "section": "Items"
+    },
+    {
+      "fieldname": "isPOS",
+      "fieldtype": "Check",
+      "default": false,
+      "hidden": true
     }
   ],
   "keywordFields": ["name", "party"]
