@@ -14,6 +14,7 @@ export class InventorySettings extends Doc {
   enableSerialNumber?: boolean;
   enableUomConversions?: boolean;
   enableStockReturns?: boolean;
+  enablePointOfSale?: boolean;
 
   static filters: FiltersMap = {
     stockInHand: () => ({
@@ -45,6 +46,9 @@ export class InventorySettings extends Doc {
     },
     enableStockReturns: () => {
       return !!this.enableStockReturns;
+    },
+    enablePointOfSale: () => {
+      return !!this.fyo.singles.POSShift?.isShiftOpen;
     },
   };
 }
