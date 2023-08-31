@@ -3,9 +3,9 @@
 If you are a GDC Management Portal user and want to contribute to improving it _without
 writing code_, there are several things you can do:
 
-- **Inform us of issues** you face while using GDC Management Portal by [raising issues](https://github.com/frappe/books/issues/new).
-- **Add a language** you would like to use GDC Management Portal in by [contributing translation](https://github.com/frappe/books/wiki/Contributing-Translations).
-- **Share your thoughts** on GDC Management Portal by joining our [Telegram group](https://t.me/frappebooks).
+- **Inform us of issues** you face while using GDC Management Portal by [raising issues](https://github.com/dvoso/books/issues/new).
+- **Add a language** you would like to use GDC Management Portal in by [contributing translation](https://github.com/dvoso/books/wiki/Contributing-Translations).
+- **Share your thoughts** on GDC Management Portal by joining our [Telegram group](https://t.me/dvosobooks).
 - **Use GDC Management Portal** for your accounting requirements and tell people about it.
 
 ---
@@ -94,7 +94,7 @@ you to add them for large changes.
 
 - **Documentation**: If the feature being added requires an explanation then
   [documentation](https://docs.frappebooks.com/) should be updated in the
-  [frappe/books_docs](https://github.com/frappe/books_docs) repository.
+  [dvoso/books_docs](https://github.com/dvoso/books_docs) repository.
   _Add a link to the documentation PR in your feature PR._
 - **Tests**: If your features alters business logic then tests should be added.
 

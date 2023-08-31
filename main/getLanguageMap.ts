@@ -3,10 +3,6 @@
  * newer files are available (if internet available)
  * then those will replace the current file.
  *
- * Language files are fetched from the frappe/books repo
- * the language files before storage have a ISO timestamp
- * prepended to the file.
- *
  * This timestamp denotes the commit datetime, update of the file
  * takes place only if a new update has been pushed.
  */
