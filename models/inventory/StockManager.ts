@@ -95,11 +95,11 @@ export class StockManager {
     if (!details.quantity) {
       throw new ValidationError(t`Quantity needs to be set`);
     }
-    if (!details.isReturn && details.quantity <= 0) {
-      throw new ValidationError(
-        t`Quantity (${details.quantity}) has to be greater than zero`
-      );
-    }
+    // if (!details.isReturn && details.quantity <= 0) {
+    //   throw new ValidationError(
+    //     t`Quantity (${details.quantity}) has to be greater than zero`
+    //   );
+    // }
   }
 
   #validateRate(details: SMIDetails) {
@@ -107,11 +107,11 @@ export class StockManager {
       throw new ValidationError(t`Rate needs to be set`);
     }
 
-    if (details.rate.lte(0)) {
-      throw new ValidationError(
-        t`Rate (${details.rate.float}) has to be greater than zero`
-      );
-    }
+    // if (details.rate.lte(0)) {
+    //   throw new ValidationError(
+    //     t`Rate (${details.rate.float}) has to be greater than zero`
+    //   );
+    // }
   }
 
   #validateLocation(details: SMIDetails) {
@@ -152,18 +152,18 @@ export class StockManager {
 
     const batchMessage = !!batch ? t` in Batch ${batch}` : '';
 
-    if (!details.isReturn && quantityBefore < details.quantity) {
-      throw new ValidationError(
-        [
-          t`Insufficient Quantity.`,
-          t`Additional quantity (${
-            details.quantity - quantityBefore
-          }) required${batchMessage} to make outward transfer of item ${
-            details.item
-          } from ${details.fromLocation} on ${formattedDate}`,
-        ].join('\n')
-      );
-    }
+    // if (!details.isReturn && quantityBefore < details.quantity) {
+    //   throw new ValidationError(
+    //     [
+    //       t`Insufficient Quantity.`,
+    //       t`Additional quantity (${
+    //         details.quantity - quantityBefore
+    //       }) required${batchMessage} to make outward transfer of item ${
+    //         details.item
+    //       } from ${details.fromLocation} on ${formattedDate}`,
+    //     ].join('\n')
+    //   );
+    // }
 
     const quantityAfter = await this.fyo.db.getStockQuantity(
       details.item,

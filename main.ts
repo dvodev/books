@@ -23,7 +23,7 @@ import registerIpcMainMessageListeners from './main/registerIpcMainMessageListen
 import registerProcessListeners from './main/registerProcessListeners';
 
 export class Main {
-  title = 'Frappe Books';
+  title = 'GDC Management Portal';
   icon: string;
 
   winURL = '';
@@ -136,9 +136,11 @@ export class Main {
     if (this.isDevelopment && !this.isTest) {
       this.mainWindow.webContents.openDevTools();
     }
+    this.mainWindow.maximize();
+    this.mainWindow.show();
 
     this.setMainWindowListeners();
-  }
+  } 
 
   setViteServerURL() {
     let port = 6969;

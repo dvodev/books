@@ -10,10 +10,10 @@
       class="w-full w-form shadow-lg rounded-lg border relative bg-white"
       style="height: 700px"
     >
-      <!-- Welcome to Frappe Books -->
+      <!-- Welcome to GDC Management Portal -->
       <div class="px-4 py-4">
         <h1 class="text-2xl font-semibold select-none">
-          {{ t`Welcome to Frappe Books` }}
+          {{ t`Welcome to GDC Management Portal` }}
         </h1>
         <p class="text-gray-600 text-base select-none">
           {{
@@ -79,7 +79,7 @@
             {{ t`Create Demo` }}
           </p>
           <p class="text-sm text-gray-600">
-            {{ t`Create a demo company to try out Frappe Books` }}
+            {{ t`Create a demo company to try out GDC Management Portal` }}
           </p>
         </div>
       </div>
@@ -359,6 +359,7 @@ export default defineComponent({
       await this.setFiles();
       this.fyo.telemetry.log(Verb.Created, 'dummy-instance');
       this.creatingDemo = false;
+      this.$emit('file-selected', filePath);
     },
     async setFiles() {
       const dbList = await ipc.getDbList();

@@ -116,7 +116,7 @@ Clear,Klar
 Clearance Date,Avståndsdatum
 Click to create,Klicka för att skapa
 Close,Stänga
-Close Frappe Books and try manually,Stäng Frappe -böcker och försök manuellt
+Close GDC Management Portal and try manually,Stäng Frappe -böcker och försök manuellt
 Closing,Stängning
 Closing (Cr),Stängning (CR)
 Closing (Dr),Stängning (dr)
@@ -738,7 +738,7 @@ View,Se
 View Purchases,Visa inköp
 View Sales,Se försäljning
 We,Vi
-Welcome to Frappe Books,Välkommen till Frappe Books
+Welcome to GDC Management Portal,Välkommen till GDC Management Portal
 Write Off,Avskriva
 Write Off Account,Skriva av kontot
 Write Off Account ${0} does not exist. Please set Write Off Account in General Settings,Skrivningskonto ${0} finns inte. Vänligen ställa in skrivningskonto i allmänna inställningar

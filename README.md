@@ -1,6 +1,6 @@
 <div align="center" markdown="1">
 
-<img src="https://user-images.githubusercontent.com/29507195/207267672-d422db6c-d89a-4bbe-9822-468a55c15053.png" alt="Frappe Books logo" width="384"/>
+<img src="https://user-images.githubusercontent.com/29507195/207267672-d422db6c-d89a-4bbe-9822-468a55c15053.png" alt="GDC Management Portal logo" width="384"/>
 
 ---
 
@@ -12,7 +12,7 @@ Free Desktop book-keeping software for small businesses and freelancers.
 
 [frappebooks.com](https://frappebooks.com/)
 
-<img src="https://user-images.githubusercontent.com/29507195/207267857-4ae48890-3fb2-4046-80cf-3256b46c72a0.png" alt="Frappe Books Preview"/>
+<img src="https://user-images.githubusercontent.com/29507195/207267857-4ae48890-3fb2-4046-80cf-3256b46c72a0.png" alt="GDC Management Portal Preview"/>
 
 </div>
 
@@ -54,7 +54,7 @@ page](https://frappebooks.com/download).
 
 ## Development
 
-Frappe Books is built on Vue.js and Electron. It is offline by default and uses
+GDC Management Portal is built on Vue.js and Electron. It is offline by default and uses
 a local SQLite file as the database.
 
 ### Pre-requisites
@@ -68,7 +68,7 @@ Next, you will need to install [yarn](https://classic.yarnpkg.com/lang/en/docs/i
 ### Clone and Run
 
 Once you are through the Pre-requisites, you can run the following commands to
-setup Frappe Books for development and building:
+setup GDC Management Portal for development and building:
 
 ```bash
 # clone the repository
@@ -83,7 +83,7 @@ yarn
 
 #### Development
 
-To run Frappe Books in development mode (with hot reload, etc):
+To run GDC Management Portal in development mode (with hot reload, etc):
 
 ```bash
 # start the electron app
@@ -101,13 +101,13 @@ sent.
 
 When in dev mode electron runs with the `--inspect` flag which allows an
 external debugger to connect to port 5858. You can use chrome for this by
-visiting `chrome://inspect` while Frappe Books is running in dev mode.
+visiting `chrome://inspect` while GDC Management Portal is running in dev mode.
 
 See more [here](https://www.electronjs.org/docs/latest/tutorial/debugging-main-process#external-debuggers).
 
 #### Build
 
-To build Frappe Books and create an installer:
+To build GDC Management Portal and create an installer:
 
 ```bash
 # start the electron app
@@ -124,7 +124,7 @@ So to build for linux you could use the `--linux` flag like so: `yarn build --li
 
 ## Contributions and Community
 
-If you want to contribute to Frappe Books, please check our [Contribution Guidelines](https://github.com/frappe/books/blob/master/.github/CONTRIBUTING.md). There are many ways you can contribute even if you don't code:
+If you want to contribute to GDC Management Portal, please check our [Contribution Guidelines](https://github.com/frappe/books/blob/master/.github/CONTRIBUTING.md). There are many ways you can contribute even if you don't code:
 
 1. If you find any issues, no matter how small (even typos), you can [raise an issue](https://github.com/frappe/books/issues/new) to inform us.
 2. You can help us with language support by [contributing translations](https://github.com/frappe/books/wiki/Contributing-Translations).
@@ -136,9 +136,9 @@ If you want to contribute code then you can fork this repo, make changes and rai
 
 ## Links
 
-- [Telegram Group](https://t.me/frappebooks): Used for discussions and decisions regarding everything Frappe Books.
+- [Telegram Group](https://t.me/frappebooks): Used for discussions and decisions regarding everything GDC Management Portal.
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
-- [Frappe Books Blog](https://tech.frappebooks.com/): Sporadically updated dev blog regarding the development of this project.
+- [GDC Management Portal Blog](https://tech.frappebooks.com/): Sporadically updated dev blog regarding the development of this project.
 
 ## Translation Contributors
 

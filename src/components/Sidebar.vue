@@ -82,25 +82,8 @@
         </div>
       </div>
     </div>
-
     <!-- Report Issue and App Version -->
     <div class="window-no-drag flex flex-col gap-2 py-2 px-4">
-      <button
-        class="
-          flex
-          text-sm text-gray-600
-          hover:text-gray-800
-          gap-1
-          items-center
-        "
-        @click="openDocumentation"
-      >
-        <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
-        <p>
-          {{ t`Help` }}
-        </p>
-      </button>
-
       <button
         class="
           flex
@@ -114,7 +97,6 @@
         <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
         <p>{{ t`Shortcuts` }}</p>
       </button>
-
       <button
         data-testid="change-db"
         class="
@@ -130,22 +112,6 @@
         <p>{{ t`Change DB` }}</p>
       </button>
 
-      <button
-        class="
-          flex
-          text-sm text-gray-600
-          hover:text-gray-800
-          gap-1
-          items-center
-        "
-        @click="() => reportIssue()"
-      >
-        <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
-        <p>
-          {{ t`Report Issue` }}
-        </p>
-      </button>
-
       <p
         v-if="showDevMode"
         class="text-xs text-gray-500 select-none cursor-pointer"
@@ -154,9 +120,8 @@
         dev mode
       </p>
     </div>
-
     <!-- Hide Sidebar Button -->
-    <button
+    <!-- <button
       class="
         absolute
         bottom-0
@@ -171,7 +136,7 @@
       @click="() => toggleSidebar()"
     >
       <feather-icon name="chevrons-left" class="w-4 h-4" />
-    </button>
+    </button> -->
 
     <Modal :open-modal="viewShortcuts" @closemodal="viewShortcuts = false">
       <ShortcutsHelper class="w-form" />

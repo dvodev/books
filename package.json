@@ -1,10 +1,10 @@
 {
-  "name": "frappe-books",
-  "version": "0.17.1",
-  "description": "Simple book-keeping app for everyone",
+  "name": "gdc-books",
+  "version": "0.18.0",
+  "description": "Bookeeping, Invoicing, POS, and customer/product management.",
   "author": {
-    "name": "Frappe Technologies Pvt. Ltd.",
-    "email": "hello@frappe.io"
+    "name": "Vulia Solutions LLC",
+    "email": "vuliasolutions@gmail.com"
   },
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
@@ -87,7 +87,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "homepage": "https://frappebooks.com",
+  "homepage": "https://vuliasolutions.com",
   "repository": {
     "url": "https://github.com/frappe/books"
   },

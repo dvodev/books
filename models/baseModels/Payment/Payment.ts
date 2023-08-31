@@ -318,10 +318,10 @@ export class Payment extends Transactional {
       'Currency'
     )}.`;
 
-    if (amount.lte(0)) {
-      const amt = this.fyo.format(this.amount!, 'Currency');
-      message = this.fyo.t`Payment amount: ${amt} should be greater than 0.`;
-    }
+    // if (amount.lte(0)) {
+    //   const amt = this.fyo.format(this.amount!, 'Currency');
+    //   message = this.fyo.t`Payment amount: ${amt} should be greater than 0.`;
+    // }
 
     throw new ValidationError(message);
   }
