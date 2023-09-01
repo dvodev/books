@@ -98,17 +98,17 @@ export function validateSinv(
       );
     }
 
-    if (!itemQtyMap[item.item as string]) {
-      throw new ValidationError(t`Item ${item.item as string} not in Stock`);
-    }
+    // if (!itemQtyMap[item.item as string]) {
+    //   throw new ValidationError(t`Item ${item.item as string} not in Stock`);
+    // }
 
-    if (item.quantity > itemQtyMap[item.item as string].availableQty) {
-      throw new ValidationError(
-        t`Insufficient Quantity. Item ${item.item as string} has only ${
-          itemQtyMap[item.item as string].availableQty
-        } quantities available. you selected ${item.quantity}`
-      );
-    }
+    // if (item.quantity > itemQtyMap[item.item as string].availableQty) {
+    //   throw new ValidationError(
+    //     t`Insufficient Quantity. Item ${item.item as string} has only ${
+    //       itemQtyMap[item.item as string].availableQty
+    //     } quantities available. you selected ${item.quantity}`
+    //   );
+    // }
   }
 }
 

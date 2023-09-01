@@ -322,17 +322,17 @@ export default defineComponent({
         return;
       }
 
-      if (
-        !this.itemQtyMap[item.name as string] ||
-        this.itemQtyMap[item.name as string].availableQty === 0
-      ) {
-        showToast({
-          type: 'error',
-          message: t`Item ${item.name as string} has Zero Quantity`,
-          duration: 'short',
-        });
-        return;
-      }
+      // if (
+      //   !this.itemQtyMap[item.name as string] ||
+      //   this.itemQtyMap[item.name as string].availableQty === 0
+      // ) {
+      //   showToast({
+      //     type: 'error',
+      //     message: t`Item ${item.name as string} has Zero Quantity`,
+      //     duration: 'short',
+      //   });
+      //   return;
+      // }
 
       const existingItems =
         this.sinvDoc.items?.filter(
