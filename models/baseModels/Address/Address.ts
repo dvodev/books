@@ -13,27 +13,31 @@ export class Address extends Doc {
   formulas: FormulaMap = {
     addressDisplay: {
       formula: () => {
-        return [
+        const addressComponents = [
           this.addressLine1,
           this.addressLine2,
           this.city,
-          this.state,
-          this.country,
-          this.postalCode,
-        ]
-          .filter(Boolean)
-          .join(', ');
+          this.state
+        ].filter(Boolean);
+
+        let addressString = addressComponents.join(', ');
+
+        if (this.postalCode) {
+          addressString += (addressString ? ' ' : '') + this.postalCode;
+        }
+
+        return addressString;
       },
       dependsOn: [
         'addressLine1',
         'addressLine2',
         'city',
         'state',
-        'country',
         'postalCode',
       ],
     },
   };
+
 
   static lists: ListsMap = {
     state(doc?: Doc) {
@@ -62,7 +66,7 @@ export class Address extends Doc {
 
   static override getListViewSettings(): ListViewSettings {
     return {
-      columns: ['name', 'addressLine1', 'city', 'state', 'country'],
+      columns: ['name', 'addressLine1', 'city', 'state'],
     };
   }
 }

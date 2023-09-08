@@ -11,7 +11,6 @@ export class Address extends BaseAddress {
           this.addressLine2,
           this.city,
           this.state,
-          this.country,
           this.postalCode,
         ]
           .filter(Boolean)
@@ -22,7 +21,6 @@ export class Address extends BaseAddress {
         'addressLine2',
         'city',
         'state',
-        'country',
         'postalCode',
       ],
     },
