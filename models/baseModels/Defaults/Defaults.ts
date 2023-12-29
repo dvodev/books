@@ -2,6 +2,7 @@ import { DefaultCashDenominations } from 'models/inventory/Point of Sale/Default
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
+import { PartyRoleEnum } from '../Party/types';
 
 export class Defaults extends Doc {
   // Auto Payments
@@ -81,6 +82,7 @@ export class Defaults extends Doc {
       type: ModelNameEnum.PurchaseReceipt,
     }),
     stockMovementPrintTemplate: () => ({ type: ModelNameEnum.StockMovement }),
+    posCustomer: () => ({ role: PartyRoleEnum.Customer }),
   };
 
   static filters: FiltersMap = this.commonFilters;

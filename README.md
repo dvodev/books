@@ -1,3 +1,10 @@
+> [!IMPORTANT]
+>
+> Frappe in search of a maintainer for Frappe Books. For more details check
+> this issue: [#775](https://github.com/frappe/books/issues/775)
+
+---
+
 <div align="center" markdown="1">
 
 <img src="https://user-images.githubusercontent.com/29507195/207267672-d422db6c-d89a-4bbe-9822-468a55c15053.png" alt="GDC Management Portal logo" width="384"/>
@@ -153,7 +160,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Spanish            | [talmax1124](https://github.com/talmax1124), [delbertf](https://github.com/delbertf)                                                                             |
 | Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode), [4silvertooth](https://github.com/4silvertooth)                                                                 |
 | Korean             | [Isaac-Kwon](https://github.com/Isaac-Kwon)                                                                                                                      |
-| Simplified Chinese | [wcxu21](https://github.com/wcxu21)                                                                                                                              |
+| Simplified Chinese | [wcxu21](https://github.com/wcxu21), [wolone](https://github.com/wolone)                                                                                         |
 | Swedish            | [papplo](https://github.com/papplo)                                                                                                                              |
 | Turkish            | Eyuq, [XTechnology-TR](https://github.com/XTechnology-TR)                                                                                                        |
 

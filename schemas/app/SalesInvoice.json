@@ -56,6 +56,13 @@
       "section": "Outstanding"
     },
     {
+      "fieldname": "returnAgainst",
+      "fieldtype": "Link",
+      "target": "SalesInvoice",
+      "label": "Return Against",
+      "section": "References"
+    },
+    {
       "fieldname": "isPOS",
       "fieldtype": "Check",
       "default": false,

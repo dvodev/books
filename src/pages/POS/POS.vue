@@ -9,6 +9,7 @@
     </PageHeader>
 
     <OpenPOSShiftModal
+      v-if="!isPosShiftOpen"
       :open-modal="!isPosShiftOpen"
       @toggle-modal="toggleModal"
     />
@@ -25,6 +26,7 @@
       @set-cash-amount="setCashAmount"
       @set-transfer-amount="setTransferAmount"
       @set-transfer-ref-no="setTransferRefNo"
+      @set-transfer-clearance-date="setTransferClearanceDate"
     />
 
     <div
@@ -58,18 +60,12 @@
           <div class="bg-white border grow h-full p-4 rounded-md">
             <!-- Customer Search -->
             <Link
+              v-if="sinvDoc.fieldMap"
               class="flex-shrink-0"
-              size="medium"
               :border="true"
-              :df="{
-                label: t`Customer`,
-                fieldtype: 'Link',
-                fieldname: 'customer',
-                target: 'Party',
-                schemaName: 'SalesInvoice',
-              }"
               :value="sinvDoc.party"
-              @change="(value) => (sinvDoc.party = value)"
+              :df="sinvDoc.fieldMap.party"
+              @change="(value:string) => (sinvDoc.party = value)"
             />
 
             <SelectedItemTable />
@@ -121,11 +117,8 @@
                     :text-right="true"
                   />
                   <FloatingLabelCurrencyInput
-                    :df="{
-                      label: t`Total`,
-                      fieldtype: 'Currency',
-                      fieldname: 'total',
-                    }"
+                    v-if="sinvDoc.fieldMap"
+                    :df="sinvDoc.fieldMap.grandTotal"
                     size="large"
                     :value="sinvDoc.grandTotal"
                     :read-only="true"
@@ -135,7 +128,11 @@
               </div>
 
               <div class="">
-                <Button class="w-full bg-red-500 py-6" @click="clearValues">
+                <Button
+                  class="w-full bg-red-500 py-6"
+                  :disabled="!sinvDoc.items?.length"
+                  @click="clearValues"
+                >
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
                       {{ t`Cancel` }}
@@ -145,6 +142,7 @@
 
                 <Button
                   class="mt-4 w-full bg-green-500 py-6"
+                  :disabled="disablePayButton"
                   @click="toggleModal('Payment', true)"
                 >
                   <slot>
@@ -197,6 +195,7 @@ import {
   getItemQtyMap,
   getTotalQuantity,
   getTotalTaxedAmount,
+  validateIsPosSettingsSet,
   validateShipment,
   validateSinv,
 } from 'src/utils/pos';
@@ -218,12 +217,15 @@ export default defineComponent({
   provide() {
     return {
       cashAmount: computed(() => this.cashAmount),
+      doc: computed(() => this.sinvDoc),
+      isDiscountingEnabled: computed(() => this.isDiscountingEnabled),
       itemDiscounts: computed(() => this.itemDiscounts),
       itemQtyMap: computed(() => this.itemQtyMap),
       itemSerialNumbers: computed(() => this.itemSerialNumbers),
       sinvDoc: computed(() => this.sinvDoc),
       totalTaxedAmount: computed(() => this.totalTaxedAmount),
       transferAmount: computed(() => this.transferAmount),
+      transferClearanceDate: computed(() => this.transferClearanceDate),
       transferRefNo: computed(() => this.transferRefNo),
     };
   },
@@ -255,7 +257,32 @@ export default defineComponent({
     };
   },
   computed: {
+    defaultPOSCashAccount: () =>
+      fyo.singles.POSSettings?.cashAccount ?? undefined,
+    isDiscountingEnabled(): boolean {
+      return !!fyo.singles.AccountingSettings?.enableDiscounting;
+    },
     isPosShiftOpen: () => !!fyo.singles.POSShift?.isShiftOpen,
+    isPaymentAmountSet(): boolean {
+      if (this.sinvDoc.grandTotal?.isZero()) {
+        return true;
+      }
+
+      if (this.cashAmount.isZero() && this.transferAmount.isZero()) {
+        return false;
+      }
+      return true;
+    },
+    disablePayButton(): boolean {
+      if (!this.sinvDoc.items?.length) {
+        return true;
+      }
+
+      if (!this.sinvDoc.party) {
+        return true;
+      }
+      return false;
+    },
   },
   watch: {
     sinvDoc: {
@@ -267,6 +294,7 @@ export default defineComponent({
   },
   async activated() {
     toggleSidebar(false);
+    validateIsPosSettingsSet(fyo);
     this.setSinvDoc();
     this.setDefaultCustomer();
     await this.setItemQtyMap();
@@ -294,6 +322,7 @@ export default defineComponent({
       this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
         account: 'Debtors',
         party: this.sinvDoc.party ?? this.defaultCustomer,
+        isPOS: true,
       }) as SalesInvoice;
     },
     setTotalQuantity() {
@@ -322,17 +351,17 @@ export default defineComponent({
         return;
       }
 
-      // if (
-      //   !this.itemQtyMap[item.name as string] ||
-      //   this.itemQtyMap[item.name as string].availableQty === 0
-      // ) {
-      //   showToast({
-      //     type: 'error',
-      //     message: t`Item ${item.name as string} has Zero Quantity`,
-      //     duration: 'short',
-      //   });
-      //   return;
-      // }
+      if (
+        !this.itemQtyMap[item.name as string] ||
+        this.itemQtyMap[item.name as string].availableQty === 0
+      ) {
+        showToast({
+          type: 'error',
+          message: t`Item ${item.name as string} has Zero Quantity`,
+          duration: 'short',
+        });
+        return;
+      }
 
       const existingItems =
         this.sinvDoc.items?.filter(
@@ -376,23 +405,9 @@ export default defineComponent({
       });
     },
     async createTransaction(shouldPrint = false) {
-      this.sinvDoc.once('afterSubmit', async () => {
-        showToast({
-          type: 'success',
-          message: t`${this.sinvDoc.name as string} is Submitted`,
-          duration: 'short',
-        });
-
-        if (shouldPrint) {
-          await routeTo(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
-          );
-        }
-      });
       try {
         await this.validate();
-        await this.submitDoc();
+        await this.submitSinvDoc(shouldPrint);
         await this.makePayment();
         await this.makeStockTransfer();
         await this.afterTransaction();
@@ -404,7 +419,7 @@ export default defineComponent({
       }
     },
     async makePayment() {
-      await validateShipment(this.itemSerialNumbers);
+      this.paymentDoc = this.sinvDoc.getPayment() as Payment;
       const paymentMethod = this.cashAmount.isZero() ? 'Transfer' : 'Cash';
       await this.paymentDoc.set('paymentMethod', paymentMethod);
 
@@ -417,50 +432,83 @@ export default defineComponent({
       }
 
       if (paymentMethod === 'Cash') {
-        await this.paymentDoc.set('amount', this.cashAmount as Money);
+        await this.paymentDoc.setMultiple({
+          paymentAccount: this.defaultPOSCashAccount,
+          amount: this.cashAmount as Money,
+        });
       }
+
+      this.paymentDoc.once('afterSubmit', () => {
+        showToast({
+          type: 'success',
+          message: t`Payment ${this.paymentDoc.name as string} is Saved`,
+          duration: 'short',
+        });
+      });
 
       try {
         await this.paymentDoc?.sync();
         await this.paymentDoc?.submit();
       } catch (error) {
-        showToast({
+        return showToast({
           type: 'error',
           message: t`${error as string}`,
         });
       }
     },
     async makeStockTransfer() {
-      const shipment = (await this.sinvDoc.getStockTransfer()) as Shipment;
-      if (!shipment.items) {
+      const shipmentDoc = (await this.sinvDoc.getStockTransfer()) as Shipment;
+      if (!shipmentDoc.items) {
         return;
       }
 
-      for (const item of shipment.items) {
+      for (const item of shipmentDoc.items) {
+        item.location = fyo.singles.POSSettings?.inventory;
         item.serialNumber =
           this.itemSerialNumbers[item.item as string] ?? undefined;
       }
 
-      try {
-        await shipment.sync();
-        await shipment.submit();
-      } catch (error) {
+      shipmentDoc.once('afterSubmit', () => {
         showToast({
+          type: 'success',
+          message: t`Shipment ${shipmentDoc.name as string} is Submitted`,
+          duration: 'short',
+        });
+      });
+
+      try {
+        await shipmentDoc.sync();
+        await shipmentDoc.submit();
+      } catch (error) {
+        return showToast({
           type: 'error',
           message: t`${error as string}`,
         });
       }
     },
-    async submitDoc() {
+    async submitSinvDoc(shouldPrint: boolean) {
+      this.sinvDoc.once('afterSubmit', async () => {
+        showToast({
+          type: 'success',
+          message: t`Sales Invoice ${this.sinvDoc.name as string} is Submitted`,
+          duration: 'short',
+        });
+
+        if (shouldPrint) {
+          await routeTo(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `/print/${this.sinvDoc.schemaName}/${this.sinvDoc.name}`
+          );
+        }
+      });
+
       try {
         await this.validate();
         await this.sinvDoc.runFormulas();
-        await this.sinvDoc._callAllTableFieldsApplyFormula();
         await this.sinvDoc.sync();
         await this.sinvDoc.submit();
-        this.paymentDoc = this.sinvDoc.getPayment() as Payment;
       } catch (error) {
-        showToast({
+        return showToast({
           type: 'error',
           message: t`${error as string}`,
         });
@@ -474,7 +522,7 @@ export default defineComponent({
       this.toggleModal('Payment', false);
     },
     clearValues() {
-      this.sinvDoc.items = [];
+      this.setSinvDoc();
       this.itemSerialNumbers = {};
 
       this.cashAmount = fyo.pesa(0);
@@ -492,7 +540,7 @@ export default defineComponent({
       this.setTotalTaxedAmount();
     },
     async validate() {
-      validateSinv(this.sinvDoc.items as SalesInvoiceItem[], this.itemQtyMap);
+      validateSinv(this.sinvDoc as SalesInvoice, this.itemQtyMap);
       await validateShipment(this.itemSerialNumbers);
     },
 

@@ -37,24 +37,37 @@
     >
       <SelectedItemRow
         :row="(row as SalesInvoiceItem)"
-        @removeItem="removeItem"
+        @remove-item="removeItem"
+        @run-sinv-formulas="runSinvFormulas"
       />
     </Row>
   </div>
 </template>
+
 <script lang="ts">
+import FormContainer from '../FormContainer.vue';
+import FormControl from '../Controls/FormControl.vue';
+import Link from '../Controls/Link.vue';
 import Row from '../Row.vue';
+import RowEditForm from 'src/pages/CommonForm/RowEditForm.vue';
 import SelectedItemRow from './SelectedItemRow.vue';
 import { isNumeric } from 'src/utils';
 import { inject } from 'vue';
 import { defineComponent } from 'vue';
-import { Field } from 'schemas/types';
-import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { SalesInvoiceItem } from 'models/baseModels/SalesInvoiceItem/SalesInvoiceItem';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { Field } from 'schemas/types';
 
 export default defineComponent({
   name: 'SelectedItemTable',
-  components: { Row, SelectedItemRow },
+  components: {
+    FormContainer,
+    FormControl,
+    Link,
+    Row,
+    RowEditForm,
+    SelectedItemRow,
+  },
   setup() {
     return {
       sinvDoc: inject('sinvDoc') as SalesInvoice,
@@ -94,7 +107,7 @@ export default defineComponent({
         },
         {
           fieldname: 'unit',
-          label: 'Unit',
+          label: 'Stock Unit',
           placeholder: 'Unit',
           fieldtype: 'Link',
           required: true,
@@ -127,6 +140,9 @@ export default defineComponent({
   methods: {
     removeItem(idx: number) {
       this.sinvDoc.remove('items', idx);
+    },
+    async runSinvFormulas() {
+      await this.sinvDoc.runFormulas();
     },
     isNumeric,
   },

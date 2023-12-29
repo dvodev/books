@@ -1,6 +1,6 @@
 {
-  "name": "gdc-books",
-  "version": "0.18.0",
+  "name": "frappe-books",
+  "version": "0.19.0",
   "description": "Bookeeping, Invoicing, POS, and customer/product management.",
   "author": {
     "name": "Vulia Solutions LLC",
