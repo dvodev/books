@@ -18,6 +18,7 @@ export enum ModelNameEnum {
   Misc = 'Misc',
   NumberSeries = 'NumberSeries',
   Party = 'Party',
+  PreferredItems = 'PreferredItems',
   Payment = 'Payment',
   PaymentFor = 'PaymentFor',
   PriceList = 'PriceList',

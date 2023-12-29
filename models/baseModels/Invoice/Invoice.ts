@@ -25,12 +25,15 @@ import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
+import { PriceList } from '../PriceList/PriceList';
+import { PriceListItem } from '../PriceList/PriceListItem';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
 
   items?: InvoiceItem[];
+  rate?: Money;
   party?: string;
   account?: string;
   currency?: string;
@@ -52,6 +55,12 @@ export abstract class Invoice extends Transactional {
   makeAutoPayment?: boolean;
   makeAutoStockTransfer?: boolean;
 
+  onFormLoad() {
+    if (this.party) {
+      this.formulas.items.formula('party');
+    }
+  }
+  
   get isSales() {
     return this.schemaName === 'SalesInvoice';
   }
@@ -123,6 +132,7 @@ export abstract class Invoice extends Transactional {
     this._setGetCurrencies();
   }
 
+  
   async validate() {
     await super.validate();
     if (
@@ -230,6 +240,65 @@ export abstract class Invoice extends Transactional {
     return safeParseFloat(exchangeRate.toFixed(2));
   }
 
+  async getItemRate(doc: InvoiceItem): Promise<Money | undefined> 
+  {
+    let priceListRate: Money | undefined;
+    if (doc.fyo.singles.AccountingSettings?.enablePriceList) {
+      priceListRate = await this.getItemRateFromPriceList(doc);
+    }
+  
+    if (priceListRate) {
+      return priceListRate;
+    }
+  
+    if (!doc.item) {
+      return;
+    }
+  
+    const itemRate = await doc.fyo.getValue(ModelNameEnum.Item, doc.item, 'rate');
+    if (isPesa(itemRate)) {
+      return itemRate;
+    }
+  
+    return;
+  }
+
+  async getItemRateFromPriceList(doc: InvoiceItem): Promise<Money | undefined> 
+  {
+    const priceListName = doc.priceList;
+    const item = doc.item;
+    if (!priceListName || !item) {
+      return;
+    }
+  
+    const priceList = await doc.fyo.doc.getDoc(
+      ModelNameEnum.PriceList,
+      priceListName
+    );
+  
+    if (!(priceList instanceof PriceList)) {
+      return;
+    }
+  
+    const unit = doc.unit;
+    const transferUnit = doc.transferUnit;
+    const plItem = priceList.priceListItem?.find((pli) => {
+      if (pli.item !== item) {
+        return false;
+      }
+  
+      if (transferUnit && pli.unit !== transferUnit) {
+        return false;
+      } else if (unit && pli.unit !== unit) {
+        return false;
+      }
+  
+      return true;
+    });
+  
+    return plItem?.rate;
+  }
+  
   async getTaxSummary() {
     const taxes: Record<
       string,
@@ -379,6 +448,83 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['party'],
     },
+    items: {
+      formula: async (fieldname) => {
+        if (fieldname !== 'party') {
+          return;
+        }
+    
+        const party = await this.loadAndGetLink('party');
+    
+        // Clear existing items first
+        this.items = [];
+    
+        for (const { item } of party.preferredItems) {
+          const { unit } = await this.fyo.doc.getDoc(
+            ModelNameEnum.Item,
+            item // The Item name from preferredItems
+          );
+    
+          const priceListName = this.priceList;
+          const priceList = await this.fyo.doc.getDoc(
+            ModelNameEnum.PriceList,
+            priceListName
+          );
+    
+          const priceListItems = priceList.priceListItem || priceList.items || [];
+    
+          let rate = 0;
+          for (const pli of Array.isArray(priceListItems) ? priceListItems : [priceListItems]) {
+            if (pli.item === item) {
+              rate = pli.rate;
+              break;
+            }
+          }
+    
+          this.push('items', { item, rate, quantity: 1 });
+        }
+    
+        return this.items;
+      },
+      dependsOn: ['party'],
+    },
+    
+    
+    
+//THIS IS IF USING THE RATE FROM THE PREFERREDITEMS SCHEMA
+    // items: {
+    //   formula: async (fieldname) => {
+    //     if (fieldname !== 'party') {
+    //       return;
+    //     }
+    
+    //     const party = await this.loadAndGetLink('party');
+    
+    //     // Clear existing items first
+    //     this.items = [];
+    
+    //     for (const { item, rate } of party.preferredItems) {
+    //       this.push('items', { item, rate, quantity: 1});
+    //     }
+    
+    //     return this.items;
+    //   },
+    //   dependsOn: ['party'],
+    // },
+    
+  //   rate: {
+  //     formula: async (fieldname) => {
+  //       if (fieldname !== 'party') {
+  //         return;
+  //       }
+  //       const party = await this.loadAndGetLink('party');
+  //       for (const item of this.items ?? []) {
+  //         return await this.getItemRate(item);
+  //     }
+  //   },
+  //   dependsOn: ['party'],
+  //   //dependsOn: ['items'],
+  // },
     currency: {
       formula: async () => {
         const currency = (await this.fyo.getValue(
@@ -844,4 +990,8 @@ export abstract class Invoice extends Transactional {
   async addItem(name: string) {
     return await addItem(name, this);
   }
+}
+
+export function isPesa(value: unknown): value is Money {
+  return value instanceof Money;
 }

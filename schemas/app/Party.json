@@ -89,6 +89,14 @@
       "label": "Outstanding Amount",
       "fieldtype": "Currency",
       "hidden": true
+    },
+    {
+      "fieldname": "preferredItems",
+      "label": "Customer Preferred Items",
+      "fieldtype": "Table",
+      "target": "PreferredItems",
+      "required": true,
+      "section": "Default"
     }
   ],
   "quickEditFields": [

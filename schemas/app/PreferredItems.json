@@ -1,0 +1,18 @@
+{
+    "name": "PreferredItems",
+    "label": "Customer Preferred Items",
+    "isChild": true,
+    "fields": [
+      {
+        "fieldname": "item",
+        "label": "Item",
+        "fieldtype": "Link",
+        "target": "Item",
+        "required": false,
+        "create": false,
+        "section": "Item"
+      }
+    ],
+    "tableFields": ["item"],
+    "keywordFields": ["item"]
+  }

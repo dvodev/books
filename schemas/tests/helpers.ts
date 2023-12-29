@@ -6,12 +6,14 @@ import PartyRegional from '../regional/in/Party.json';
 import { Schema, SchemaStub, SchemaStubMap } from '../types';
 import Customer from './Customer.json';
 import Party from './Party.json';
+import PreferredItems from '../app/PreferredItems.json';
 
 interface AppSchemaMap extends SchemaStubMap {
   Account: SchemaStub;
   JournalEntry: SchemaStub;
   JournalEntryAccount: SchemaStub;
   Party: SchemaStub;
+  PreferredItems: SchemaStub;
   Customer: SchemaStub;
 }
 
@@ -28,6 +30,7 @@ export function getTestSchemaMap(): {
     JournalEntry,
     JournalEntryAccount,
     Party,
+    PreferredItems,
     Customer,
   } as AppSchemaMap;
   const regionalSchemaMap = { Party: PartyRegional } as RegionalSchemaMap;
