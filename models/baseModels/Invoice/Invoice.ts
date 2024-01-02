@@ -6,12 +6,13 @@ import {
   DefaultMap,
   FiltersMap,
   FormulaMap,
+  FormulaReturn,
   HiddenMap,
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { Transactional } from 'models/Transactional/Transactional';
-import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
+import { addItem, addPrefferedItem, getExchangeRate, getNumberSeries } from 'models/helpers';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { validateBatch } from 'models/inventory/helpers';
 import { ModelNameEnum } from 'models/types';
@@ -26,16 +27,15 @@ import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { PriceList } from '../PriceList/PriceList';
-import { PriceListItem } from '../PriceList/PriceListItem';
 import { ReturnDocItem } from 'models/inventory/types';
 import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
+import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
 
   items?: InvoiceItem[];
-  rate?: Money;
   party?: string;
   account?: string;
   currency?: string;
@@ -56,6 +56,12 @@ export abstract class Invoice extends Transactional {
   cancelled?: boolean;
   makeAutoPayment?: boolean;
   makeAutoStockTransfer?: boolean;
+
+  onFormLoad() {
+    if (this.party) {
+      this.formulas.items?.formula('party');
+    }
+  }
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
@@ -132,7 +138,6 @@ export abstract class Invoice extends Transactional {
     this._setGetCurrencies();
   }
 
-  
   async validate() {
     await super.validate();
     if (
@@ -155,6 +160,15 @@ export abstract class Invoice extends Transactional {
 
     const party = (await this.fyo.doc.getDoc('Party', this.party)) as Party;
     await party.updateOutstandingAmount();
+    // const pl = await party._getPriceList('Party');
+    // const priceList = (await this.fyo.doc.getDoc(
+    //   'PriceList',
+    //   pl.toString()
+    // )) as PriceList;
+
+    // await priceList?.sync();
+    // await priceList?.submit();
+    // await this.load();
 
     if (this.makeAutoPayment && this.autoPaymentAccount) {
       const payment = this.getPayment();
@@ -243,65 +257,6 @@ export abstract class Invoice extends Transactional {
     return safeParseFloat(exchangeRate.toFixed(2));
   }
 
-  async getItemRate(doc: InvoiceItem): Promise<Money | undefined> 
-  {
-    let priceListRate: Money | undefined;
-    if (doc.fyo.singles.AccountingSettings?.enablePriceList) {
-      priceListRate = await this.getItemRateFromPriceList(doc);
-    }
-  
-    if (priceListRate) {
-      return priceListRate;
-    }
-  
-    if (!doc.item) {
-      return;
-    }
-  
-    const itemRate = await doc.fyo.getValue(ModelNameEnum.Item, doc.item, 'rate');
-    if (isPesa(itemRate)) {
-      return itemRate;
-    }
-  
-    return;
-  }
-
-  async getItemRateFromPriceList(doc: InvoiceItem): Promise<Money | undefined> 
-  {
-    const priceListName = doc.priceList;
-    const item = doc.item;
-    if (!priceListName || !item) {
-      return;
-    }
-  
-    const priceList = await doc.fyo.doc.getDoc(
-      ModelNameEnum.PriceList,
-      priceListName
-    );
-  
-    if (!(priceList instanceof PriceList)) {
-      return;
-    }
-  
-    const unit = doc.unit;
-    const transferUnit = doc.transferUnit;
-    const plItem = priceList.priceListItem?.find((pli) => {
-      if (pli.item !== item) {
-        return false;
-      }
-  
-      if (transferUnit && pli.unit !== transferUnit) {
-        return false;
-      } else if (unit && pli.unit !== unit) {
-        return false;
-      }
-  
-      return true;
-    });
-  
-    return plItem?.rate;
-  }
-  
   async getTaxSummary() {
     const taxes: Record<
       string,
@@ -533,14 +488,14 @@ export abstract class Invoice extends Transactional {
       filters: {
         submitted: true,
         cancelled: false,
-        returnAgainst: this.returnAgainst,
+        returnAgainst: this.returnAgainst as string, // Add type assertion here
       },
     });
 
     const isReturned = !!returnInvoices.length;
     const invoiceDoc = await this.fyo.doc.getDoc(
       this.schemaName,
-      this.returnAgainst
+      this.returnAgainst as string
     );
     await invoiceDoc.setAndSync({ isReturned });
     await invoiceDoc.submit();
@@ -579,83 +534,103 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['party'],
     },
+    priceList: {
+      formula: async (): Promise<FormulaReturn | string> => {
+        const pl = (await this.fyo.getValue(
+          'Party',
+          this.party!,
+          'priceList'
+        )) as string;
+
+        if (!getIsNullOrUndef(pl)) {
+          return pl;
+        }
+
+        this.priceList = pl;
+        return (await this.fyo.doc.getDoc(
+          'PriceList',
+          pl
+        )) as unknown as FormulaReturn;
+      },
+      dependsOn: ['party'],
+    },
+
     items: {
       formula: async (fieldname) => {
         if (fieldname !== 'party') {
           return;
         }
     
-        const party = await this.loadAndGetLink('party');
-    
+        const party = (await this.loadAndGetLink('party')) as Party;
         // Clear existing items first
         this.items = [];
     
-        for (const { item } of party.preferredItems) {
-          const { unit } = await this.fyo.doc.getDoc(
-            ModelNameEnum.Item,
-            item // The Item name from preferredItems
-          );
+        const pl = await this.fyo.doc.getDoc(
+          ModelNameEnum.PriceList,
+          this.priceList
+        );
     
-          const priceListName = this.priceList;
-          const priceList = await this.fyo.doc.getDoc(
-            ModelNameEnum.PriceList,
-            priceListName
-          );
+        for (const { item } of party.preferredItems as InvoiceItem[]) {
+          let quantity = 1;
+          if (item) {
+            const { unit } = await this.fyo.doc.getDoc(ModelNameEnum.Item, item);
     
-          const priceListItems = priceList.priceListItem || priceList.items || [];
+            if (Array.isArray(party.preferredItems)) {
+              const qItem = party.preferredItems.find(
+                (qi: { item: any }) => qi.item === item
+              );
+
+              if(qItem.quantity != undefined && qItem.quantity >= 1)
+              {
+                quantity = qItem.quantity -1;
+
+              }
+            };
+
+            // Check if pl.priceListItem is an array before using find
+            if (Array.isArray(pl.priceListItem)) {
+              const plItem = pl.priceListItem.find(
+                (pli: { item: any }) => pli.item === item
+              );
+              
+
     
-          let rate = 0;
-          for (const pli of Array.isArray(priceListItems) ? priceListItems : [priceListItems]) {
-            if (pli.item === item) {
-              rate = pli.rate;
-              break;
+              // Handle the case where the item is not found in pl.priceListItem
+              const rate = plItem?.rate !== undefined ? plItem.rate : this.fyo.pesa(0);
+              const amount = rate.mul(quantity);
+              
+              //Adding to items but do not use them for anything other than initial calculations 
+              this.push('items', { item, rate, quantity, amount } as InvoiceItem);
+              // Now call addPrefferedItem method
+              await this.addPrefferedItem(item, rate.float, quantity, amount);
+    
+            } else {
+              // Handle the case where pl.priceListItem is not an array
+              console.error('priceListItem is not an array:', pl.priceListItem);
             }
+          } else {
+            // Handle the case where item is undefined
+            console.error('Item is undefined');
           }
-    
-          this.push('items', { item, rate, quantity: 1 });
         }
+    
+        // Update the dependent formulas/values 
+        this.netTotal = this.getSum('items', 'amount', false) as Money;
+        this.taxes = await this.getTaxSummary() as TaxSummary[];
+        this.grandTotal = this.getGrandTotal();
+        this.baseGrandTotal = (this.grandTotal as Money).mul(this.exchangeRate! ?? 1)
+        if (this.submitted){
+          this.outstandingAmount = this.baseGrandTotal!;
+        }
+    
+        // this.recalculateFormulas(['netTotal', 'taxes', 'grandTotal', 'baseGrandTotal', 'outstandingAmount', 'stockNotTransferred']);
     
         return this.items;
       },
       dependsOn: ['party'],
     },
     
-    
-    
-//THIS IS IF USING THE RATE FROM THE PREFERREDITEMS SCHEMA
-    // items: {
-    //   formula: async (fieldname) => {
-    //     if (fieldname !== 'party') {
-    //       return;
-    //     }
-    
-    //     const party = await this.loadAndGetLink('party');
-    
-    //     // Clear existing items first
-    //     this.items = [];
-    
-    //     for (const { item, rate } of party.preferredItems) {
-    //       this.push('items', { item, rate, quantity: 1});
-    //     }
-    
-    //     return this.items;
-    //   },
-    //   dependsOn: ['party'],
-    // },
-    
-  //   rate: {
-  //     formula: async (fieldname) => {
-  //       if (fieldname !== 'party') {
-  //         return;
-  //       }
-  //       const party = await this.loadAndGetLink('party');
-  //       for (const item of this.items ?? []) {
-  //         return await this.getItemRate(item);
-  //     }
-  //   },
-  //   dependsOn: ['party'],
-  //   //dependsOn: ['items'],
-  // },
+
     currency: {
       formula: async () => {
         const currency = (await this.fyo.getValue(
@@ -718,7 +693,7 @@ export abstract class Invoice extends Transactional {
       formula: () => !!this.autoPaymentAccount,
       dependsOn: [],
     },
-    makeAutoStockTransfer: {
+    makeAutoStockTransfer: { 
       formula: () =>
         !!this.fyo.singles.AccountingSettings?.enableInventory &&
         !!this.autoStockTransferLocation,
@@ -748,6 +723,23 @@ export abstract class Invoice extends Transactional {
     );
   }
 
+  // async recalculateFormulas(dependencies: string[]) {
+  //   console.log('Dependencies:', dependencies);
+  
+  //   await Promise.all(dependencies.map(async (dependency) => {
+  //     const formulaFunction = this.formulas[dependency]?.formula;
+  //     console.log(`Recalculating formula for ${dependency}`);
+  //     if (formulaFunction) {
+  //       try {
+  //         await formulaFunction(); // Ensure async functions are awaited
+  //         console.log(`Formula for ${dependency} recalculated successfully`);
+  //       } catch (error) {
+  //         console.error(`Error in formula for ${dependency}:`, error);
+  //       }
+  //     }
+  //   }));
+  // }
+  
   getItemDiscountedAmounts() {
     let itemDiscountedAmounts = this.fyo.pesa(0);
     for (const item of this.items ?? []) {
@@ -1137,6 +1129,11 @@ export abstract class Invoice extends Transactional {
       }))
       .sort((a, b) => a.date.valueOf() - b.date.valueOf());
   }
+
+  async addPrefferedItem(name: string, rate: number, quantity: number, amount: Money) {
+    return await addPrefferedItem(name, rate, quantity, amount, this);
+  }
+  
 
   async addItem(name: string) {
     return await addItem(name, this);

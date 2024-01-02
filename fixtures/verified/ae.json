@@ -20,7 +20,7 @@
             },
             "accountType": "Receivable"
           },
-          "Post Dated Cheques Received": {
+          "Post Dated Checks Received": {
             "accountType": "Receivable"
           },
           "Staff Receivable": {
@@ -334,7 +334,7 @@
             "Other Payable": {
               "accountType": "Payable"
             },
-            "Post Dated Cheques Paid": {
+            "Post Dated Checks Paid": {
               "accountType": "Payable"
             },
             "Staff Payable": {},

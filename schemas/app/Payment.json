@@ -88,8 +88,8 @@
           "label": "Cash"
         },
         {
-          "value": "Cheque",
-          "label": "Cheque"
+          "value": "Check",
+          "label": "Check"
         },
         {
           "value": "Transfer",
@@ -109,8 +109,8 @@
     },
     {
       "fieldname": "referenceId",
-      "label": "Ref. / Cheque No.",
-      "placeholder": "Ref. / Cheque No.",
+      "label": "Ref. / Check No.",
+      "placeholder": "Ref. / Check No.",
       "fieldtype": "Data",
       "section": "Details"
     },

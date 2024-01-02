@@ -21,7 +21,7 @@ import { showToast } from './interactive';
 export async function getItemQtyMap(): Promise<ItemQtyMap> {
   const itemQtyMap: ItemQtyMap = {};
   const valuationMethod =
-    fyo.singles.InventorySettings?.valuationMethod ?? ValuationMethod.FIFO;
+    fyo.singles.InventorySettings?.valuationMethod ?? ValuationMethod.FIFO as any;
 
   const rawSLEs = await getRawStockLedgerEntries(fyo);
   const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);

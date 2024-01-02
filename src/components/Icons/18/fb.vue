@@ -23,7 +23,7 @@
 <script>
 import Base from '../base.vue';
 export default {
-  name: 'FB',
+  name: 'GDC',
   extends: Base,
 };
 </script>

@@ -11,8 +11,15 @@
         "required": false,
         "create": false,
         "section": "Item"
+      },
+      {
+        "fieldname": "quantity",
+        "label": "Quantity",
+        "fieldtype": "Float",
+        "required": true,
+        "default": 1
       }
     ],
-    "tableFields": ["item"],
-    "keywordFields": ["item"]
+    "tableFields": ["item", "quantity"],
+    "keywordFields": ["item", "quantity"]
   }

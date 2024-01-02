@@ -16,6 +16,7 @@ import Misc from './app/Misc.json';
 import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
 import PreferredItems from './app/PreferredItems.json';
+import PreferredPriceList from './app/PreferredPriceList.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
 import PriceList from './app/PriceList.json';
@@ -96,6 +97,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
 
   Party as Schema,
   PreferredItems as Schema,
+  PreferredPriceList as Schema,
   Address as Schema,
   Item as Schema,
   UOM as Schema,

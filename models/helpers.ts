@@ -14,6 +14,7 @@ import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
+import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -520,6 +521,40 @@ export function getDocStatusListColumn(): ColumnConfig {
       };
     },
   };
+}
+
+
+type ModelsWithPreferredItems = Invoice ;
+export async function addPrefferedItem<M extends ModelsWithPreferredItems>(
+  name: string,
+  rate: number,
+  quantity: number,
+  amount: Money,
+  doc: M
+) {
+  if (!doc.canEdit) {
+    return;
+  }
+
+  const items = (doc.items ?? []) as NonNullable<M['items']>[number][];
+  const existingItem = items.find((i) => i.item === name);
+
+  if (existingItem) {
+    // Update the existing item
+    const q = existingItem.quantity ?? 0;
+    await existingItem.set('quantity', q + 1);
+  } else {
+    // Add a new item
+    const newItem = {
+      item: name,
+      rate,
+      quantity,
+      amount,
+    } as unknown as InvoiceItem;
+
+ doc.items = [...items, newItem] as (InvoiceItem)[];
+
+  }
 }
 
 type ModelsWithItems = Invoice | StockTransfer | StockMovement;

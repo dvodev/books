@@ -32,6 +32,17 @@ export class BespokeQueries {
     return num;
   }
 
+  // static async getPartyPriceList(
+  //   db: DatabaseCore,
+  //   partyName: string
+  // ){
+  //   const priceList = (await db.knex!.raw(
+  //     'Select priceList from Party where name = ??;',
+  //     [partyName]
+  //   ));
+  //   return priceList;
+  // }
+
   static async getTopExpenses(
     db: DatabaseCore,
     fromDate: string,

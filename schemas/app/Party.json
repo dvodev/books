@@ -95,7 +95,13 @@
       "label": "Customer Preferred Items",
       "fieldtype": "Table",
       "target": "PreferredItems",
-      "required": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "priceList",
+      "label": "Price List",
+      "fieldtype": "Link",
+      "target": "PriceList",
       "section": "Default"
     }
   ],
@@ -108,5 +114,5 @@
     "role",
     "taxId"
   ],
-  "keywordFields": ["name", "email", "role"]
+  "keywordFields": ["name", "email", "role", "priceList"]
 }

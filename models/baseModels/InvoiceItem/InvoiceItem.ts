@@ -552,7 +552,7 @@ async function getItemRate(doc: InvoiceItem): Promise<Money | undefined> {
 async function getItemRateFromPriceList(
   doc: InvoiceItem
 ): Promise<Money | undefined> {
-  const priceListName = doc.parentdoc?.priceList;
+const priceListName = doc.parentdoc?.priceList;
   const item = doc.item;
   if (!priceListName || !item) {
     return;

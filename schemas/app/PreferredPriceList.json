@@ -1,0 +1,18 @@
+{
+    "name": "PreferredPriceList",
+    "label": "Customer Price List",
+    "isChild": true,
+    "fields": [
+      {
+        "fieldname": "priceList",
+        "label": "Price List",
+        "fieldtype": "Link",
+        "target": "PriceList",
+        "required": false,
+        "create": true,
+        "section": "Default"
+      }
+    ],
+    "tableFields": ["priceList"],
+    "keywordFields": ["priceList"]
+  }
