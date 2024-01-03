@@ -15,6 +15,8 @@ import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
 import { InvoiceItem } from './baseModels/InvoiceItem/InvoiceItem';
+import { Party } from './baseModels/Party/Party';
+import { PriceList } from './baseModels/PriceList/PriceList';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -558,7 +560,7 @@ export async function addPrefferedItem<M extends ModelsWithPreferredItems>(
 }
 
 type ModelsWithItems = Invoice | StockTransfer | StockMovement;
-export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
+export async function addItem<M extends ModelsWithItems>(this: any, name: string, doc: M) {
   if (!doc.canEdit) {
     return;
   }
@@ -569,6 +571,25 @@ export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
   if (item) {
     const q = item.quantity ?? 0;
     await item.set('quantity', q + 1);
+
+    // const party = await this.fyo.doc.getDoc(
+    //   ModelNameEnum.Party,
+    //   this.party
+    // ) as Party;
+
+    // const plname = party.priceList;
+    // const pl = await this.fyo.doc.getDoc(
+    //   ModelNameEnum.PriceList,
+    //   plname
+    // );
+
+    // if (Array.isArray(pl.priceListItem)) {
+    //   const plItem = pl.priceListItem.find(
+    //     (pli: { item: any }) => pli.item === item
+    //   );
+
+    // await item.set('rate', plItem?.rate !== undefined ? plItem.rate : this.fyo.pesa(0));
+    //   }
     return;
   }
 

@@ -94,33 +94,33 @@ export function validateSinv(sinvDoc: SalesInvoice, itemQtyMap: ItemQtyMap) {
     return;
   }
 
-  validateSinvItems(sinvDoc.items as SalesInvoiceItem[], itemQtyMap);
+  // validateSinvItems(sinvDoc.items as SalesInvoiceItem[], itemQtyMap);
 }
 
-function validateSinvItems(
-  sinvItems: SalesInvoiceItem[],
-  itemQtyMap: ItemQtyMap
-) {
-  for (const item of sinvItems) {
-    if (!item.quantity || item.quantity < 1) {
-      throw new ValidationError(
-        t`Invalid Quantity for Item ${item.item as string}`
-      );
-    }
+// function validateSinvItems(
+//   sinvItems: SalesInvoiceItem[],
+//   itemQtyMap: ItemQtyMap
+// ) {
+//   for (const item of sinvItems) {
+    // if (!item.quantity || item.quantity < 1) {
+    //   throw new ValidationError(
+    //     t`Invalid Quantity for Item ${item.item as string}`
+    //   );
+    // }
 
-    if (!itemQtyMap[item.item as string]) {
-      throw new ValidationError(t`Item ${item.item as string} not in Stock`);
-    }
+    // if (!itemQtyMap[item.item as string]) {
+    //   throw new ValidationError(t`Item ${item.item as string} not in Stock`);
+    // }
 
-    if (item.quantity > itemQtyMap[item.item as string].availableQty) {
-      throw new ValidationError(
-        t`Insufficient Quantity. Item ${item.item as string} has only ${
-          itemQtyMap[item.item as string].availableQty
-        } quantities available. you selected ${item.quantity}`
-      );
-    }
-  }
-}
+//     if (item.quantity > itemQtyMap[item.item as string].availableQty) {
+//       throw new ValidationError(
+//         t`Insufficient Quantity. Item ${item.item as string} has only ${
+//           itemQtyMap[item.item as string].availableQty
+//         } quantities available. you selected ${item.quantity}`
+//       );
+//     }
+//   }
+// }
 
 export async function validateShipment(itemSerialNumbers: ItemSerialNumbers) {
   if (!itemSerialNumbers) {

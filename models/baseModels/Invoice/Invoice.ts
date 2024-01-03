@@ -29,7 +29,6 @@ import { TaxSummary } from '../TaxSummary/TaxSummary';
 import { PriceList } from '../PriceList/PriceList';
 import { ReturnDocItem } from 'models/inventory/types';
 import { AccountFieldEnum, PaymentTypeEnum } from '../Payment/types';
-import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
@@ -60,6 +59,15 @@ export abstract class Invoice extends Transactional {
   onFormLoad() {
     if (this.party) {
       this.formulas.items?.formula('party');
+    //   const party = ((await this.fyo.doc.getDoc('Party', this.party)) as Party);
+    //       const pl = await party._getPriceList('Party');
+    // const priceList = (await this.fyo.doc.getDoc(
+    //   'PriceList',
+    //   pl.toString()
+    // )) as PriceList;
+
+    // await priceList?.sync();
+    // this.priceList = priceList.name;
     }
   }
 
@@ -536,6 +544,7 @@ export abstract class Invoice extends Transactional {
     },
     priceList: {
       formula: async (): Promise<FormulaReturn | string> => {
+        //probably missing checks to see if this has changed or not?
         const pl = (await this.fyo.getValue(
           'Party',
           this.party!,
@@ -543,14 +552,14 @@ export abstract class Invoice extends Transactional {
         )) as string;
 
         if (!getIsNullOrUndef(pl)) {
-          return pl;
+          const list = (await this.fyo.doc.getDoc(
+            'PriceList',
+            pl
+          )) as PriceList;
+          this.priceList = list.name;
+          return this.priceList;
         }
-
-        this.priceList = pl;
-        return (await this.fyo.doc.getDoc(
-          'PriceList',
-          pl
-        )) as unknown as FormulaReturn;
+        return this.priceList;
       },
       dependsOn: ['party'],
     },
@@ -582,7 +591,7 @@ export abstract class Invoice extends Transactional {
 
               if(qItem.quantity != undefined && qItem.quantity >= 1)
               {
-                quantity = qItem.quantity -1;
+                quantity = qItem.quantity;
 
               }
             };
@@ -593,8 +602,6 @@ export abstract class Invoice extends Transactional {
                 (pli: { item: any }) => pli.item === item
               );
               
-
-    
               // Handle the case where the item is not found in pl.priceListItem
               const rate = plItem?.rate !== undefined ? plItem.rate : this.fyo.pesa(0);
               const amount = rate.mul(quantity);
@@ -602,7 +609,7 @@ export abstract class Invoice extends Transactional {
               //Adding to items but do not use them for anything other than initial calculations 
               this.push('items', { item, rate, quantity, amount } as InvoiceItem);
               // Now call addPrefferedItem method
-              await this.addPrefferedItem(item, rate.float, quantity, amount);
+              //await this.addPrefferedItem(item, rate.float, quantity, amount);
     
             } else {
               // Handle the case where pl.priceListItem is not an array
@@ -630,7 +637,6 @@ export abstract class Invoice extends Transactional {
       dependsOn: ['party'],
     },
     
-
     currency: {
       formula: async () => {
         const currency = (await this.fyo.getValue(

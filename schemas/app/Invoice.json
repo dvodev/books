@@ -198,5 +198,5 @@
       "section": "References"
     }
   ],
-  "keywordFields": ["name", "party"]
+  "keywordFields": ["name", "party", "priceList"]
 }

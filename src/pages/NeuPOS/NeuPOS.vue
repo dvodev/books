@@ -284,7 +284,7 @@ export default defineComponent({
       this.itemQtyMap = {};
       const valuationMethod =
         this.fyo.singles.InventorySettings?.valuationMethod ??
-        ValuationMethod.FIFO;
+        ValuationMethod.FIFO as any;
 
       const rawSLEs = await getRawStockLedgerEntries(this.fyo);
       const rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
@@ -359,13 +359,13 @@ export default defineComponent({
         return;
       }
 
-      if (this.itemQtyMap[item.name as string].availableQty === 0) {
-        showToast({
-          type: 'error',
-          message: t`Item ${item.name as string} has Zero Quantity`,
-          duration: 'short',
-        });
-      }
+      // if (this.itemQtyMap[item.name as string].availableQty === 0) {
+      //   showToast({
+      //     type: 'error',
+      //     message: t`Item ${item.name as string} has Zero Quantity`,
+      //     duration: 'short',
+      //   });
+      // }
 
       const existingItems =
         this.sinvDoc.items?.filter((item) => item.item === item.name) ?? [];

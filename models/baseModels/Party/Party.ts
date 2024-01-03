@@ -54,17 +54,17 @@ export class Party extends Doc {
     await this.setAndSync({ outstandingAmount });
   }
 
-  // async _getPriceList(
-  //   schemaName: 'Party' 
-  // ) {
-  //   const priceList = await this.fyo.db.getAllRaw(schemaName, {
-  //     fields: ['priceList'],
-  //     filters: {
-  //       party: this.name as string,
-  //     },
-  //   });
-  //   return priceList;
-  // }
+  async _getPriceList(
+    schemaName: 'Party' 
+  ) {
+    const priceList = await this.fyo.db.getAllRaw(schemaName, {
+      fields: ['priceList'],
+      filters: {
+        party: this.name as string,
+      },
+    });
+    return priceList;
+  }
   
   async _getTotalOutstandingAmount(
     schemaName: 'SalesInvoice' | 'PurchaseInvoice'

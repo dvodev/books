@@ -5,6 +5,7 @@ import {
   CurrenciesMap,
   FiltersMap,
   FormulaMap,
+  FormulaReturn,
   HiddenMap,
   ValidationMap,
 } from 'fyo/model/types';
@@ -13,12 +14,13 @@ import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
-import { safeParseFloat } from 'utils/index';
+import { getIsNullOrUndef, safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { PriceList } from '../PriceList/PriceList';
 import { isPesa } from 'fyo/utils';
+import { Party } from '../Party/Party';
 
 export abstract class InvoiceItem extends Doc {
   item?: string;
@@ -117,6 +119,26 @@ export abstract class InvoiceItem extends Doc {
         )) as string,
       dependsOn: ['item'],
     },
+    // priceList: {
+    //   formula: async (): Promise<FormulaReturn | string> => {
+    //     const pl = (await this.fyo.getValue(
+    //       'Party',
+    //       this.party!,
+    //       'priceList'
+    //     )) as string;
+
+    //     if (!getIsNullOrUndef(pl)) {
+    //       return pl;
+    //     }
+
+    //     this.priceList = pl;
+    //     return (await this.fyo.doc.getDoc(
+    //       'PriceList',
+    //       pl
+    //     )) as unknown as FormulaReturn;
+    //   },
+    //   dependsOn: ['party'],
+    // },
     rate: {
       formula: async (fieldname) => {
         const rate = await getItemRate(this);
@@ -552,7 +574,8 @@ async function getItemRate(doc: InvoiceItem): Promise<Money | undefined> {
 async function getItemRateFromPriceList(
   doc: InvoiceItem
 ): Promise<Money | undefined> {
-const priceListName = doc.parentdoc?.priceList;
+
+  const priceListName = doc.parentdoc?.priceList;
   const item = doc.item;
   if (!priceListName || !item) {
     return;
@@ -561,7 +584,7 @@ const priceListName = doc.parentdoc?.priceList;
   const priceList = await doc.fyo.doc.getDoc(
     ModelNameEnum.PriceList,
     priceListName
-  );
+  ) as PriceList;
 
   if (!(priceList instanceof PriceList)) {
     return;
@@ -574,11 +597,11 @@ const priceListName = doc.parentdoc?.priceList;
       return false;
     }
 
-    if (transferUnit && pli.unit !== transferUnit) {
-      return false;
-    } else if (unit && pli.unit !== unit) {
-      return false;
-    }
+    // if (transferUnit && pli.unit !== transferUnit) {
+    //   return false;
+    // } else if (unit && pli.unit !== unit) {
+    //   return false;
+    // }
 
     return true;
   });
