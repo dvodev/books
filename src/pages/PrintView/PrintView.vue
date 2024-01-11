@@ -19,6 +19,9 @@
       <Button class="text-xs" type="primary" @click="savePDF">
         {{ t`Save as PDF` }}
       </Button>
+      <Button class="text-xs" type="primary" @click="printDocument">
+        {{ t`Print` }}
+      </Button>
     </PageHeader>
 
     <!-- Template Display Area -->
@@ -253,6 +256,18 @@ export default defineComponent({
       }
 
       await printContainer.savePDF(this.doc?.name);
+    },
+    async printDocument() {
+      const printContainer = this.$refs.printContainer;
+
+      // Check if the printContainer exists and has the printDocument method
+      if (printContainer) {
+        // Call the printDocument method of the PrintContainer component
+        
+        await printContainer.printDocument();
+      } else {
+        console.error('printContainer or printDocument method not found.');
+      }
     },
     async setTemplateFromDefault() {
       const defaultName =

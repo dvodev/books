@@ -3,7 +3,6 @@ import { Money } from "pesa";
 export type ItemQtyMap = {
     [item: string]: { availableQty: number;[batch: string]: number };
 }
-
 export type ItemSerialNumbers = { [item: string]: string };
 
 export type DiscountType = "percent" | "amount";
@@ -17,4 +16,5 @@ export interface POSItem {
     unit: string,
     hasBatch: boolean,
     hasSerialNumber: boolean,
+    priceList: string
 }

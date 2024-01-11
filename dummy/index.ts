@@ -33,15 +33,15 @@ export async function setupDummyInstance(
   notifier?.(fyo.t`Setting Up Instance`, -1);
   const options = {
     logo: null,
-    companyName: "Flo's Clothes",
-    country: 'India',
-    fullname: 'Lin Florentine',
-    email: 'lin@flosclothes.com',
-    bankName: 'Supreme Bank',
-    currency: 'INR',
+    companyName: "Example Company",
+    country: 'United States',
+    fullname: 'First Last',
+    email: 'gdc@exampleCo.com',
+    bankName: 'Example Bank',
+    currency: 'USD',
     fiscalYearStart: getFiscalYear('04-01', true)!.toISOString(),
     fiscalYearEnd: getFiscalYear('04-01', false)!.toISOString(),
-    chartOfAccounts: 'India - Chart of Accounts',
+    chartOfAccounts: 'Schools - Chart of Accounts',
   };
   await setupInstance(dbPath, options, fyo);
   fyo.store.skipTelemetryLogging = true;
@@ -78,7 +78,7 @@ async function setOtherSettings(fyo: Fyo) {
     color: '#F687B3',
     template: 'Business',
     displayLogo: true,
-    phone: '+91 8983-000418',
+    phone: '+419 615 5886',
     logo,
     address: address.name,
   });

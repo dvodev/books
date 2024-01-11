@@ -4,6 +4,10 @@
       <Button class="text-xs" type="primary" @click="savePDF">
         {{ t`Save as PDF` }}
       </Button>
+      
+      <Button class="text-xs" type="primary" @click="printDocument">
+        {{ t`Print` }}
+      </Button>
     </PageHeader>
 
     <div class="outer-container">
@@ -155,7 +159,7 @@ import Int from 'src/components/Controls/Int.vue';
 import Select from 'src/components/Controls/Select.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { getReport } from 'src/utils/misc';
-import { getPathAndMakePDF } from 'src/utils/printTemplates';
+import { getPathAndMakePDF, printDocumentUtility } from 'src/utils/printTemplates';
 import { showSidebar } from 'src/utils/refs';
 import { paperSizeMap, printSizes } from 'src/utils/ui';
 import { PropType, defineComponent } from 'vue';
@@ -257,6 +261,21 @@ export default defineComponent({
     window.rpv = this;
   },
   methods: {
+    async printDocument() {
+      const scaledContainer = this.$refs.scaledContainer;
+      // @ts-ignore
+      if (!scaledContainer || !scaledContainer.$el.children[0]) {
+        console.error('Scaled container or content not found.');
+        return;
+      }
+      // @ts-ignore
+      const contentToPrint = scaledContainer.$el.children[0].innerHTML;
+
+      // Call the utility method for printing
+      await printDocumentUtility(
+        contentToPrint
+        );
+    },
     setScale() {
       const width = this.size.width * 37.2;
       let containerWidth = window.innerWidth - 26 * 16;
@@ -272,7 +291,6 @@ export default defineComponent({
       if (typeof innerHTML !== 'string') {
         return;
       }
-
       const name = this.title + ' - ' + this.fyo.format(new Date(), 'Date');
       await getPathAndMakePDF(
         name,

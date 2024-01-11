@@ -17,6 +17,9 @@
       <Button v-if="displayDoc && doc?.template" @click="savePDF">
         {{ t`Save as PDF` }}
       </Button>
+      <Button v-if="displayDoc && doc?.template" class="text-xs" @click="printDocument">
+        {{ t`Print` }}
+      </Button>
       <Button
         v-if="doc && doc.isCustom && displayDoc"
         :title="t`Toggle Edit Mode`"
@@ -594,6 +597,16 @@ export default defineComponent({
       }
 
       printContainer.savePDF(this.displayDoc?.name);
+    },
+    async printDocument() {
+      const printContainer = this.$refs.printContainer;
+
+      if (printContainer) {
+        printContainer.printDocument();
+      } else {
+        // Fallback to default printing behavior
+        this.savePDF();
+      }
     },
     async setDisplayInitialDoc() {
       const schemaName = this.doc?.type;

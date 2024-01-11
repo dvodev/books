@@ -28,13 +28,12 @@
       @set-transfer-ref-no="setTransferRefNo"
       @set-transfer-clearance-date="setTransferClearanceDate"
     />
-
     <div
       class="bg-gray-25 gap-2 grid grid-cols-12 p-4"
       style="height: calc(100vh - var(--h-row-largest))"
     >
       <div class="bg-white border col-span-5 rounded-md">
-        <div class="rounded-md p-4 col-span-5">
+        <div class="bg-white border grow h-full p-4 rounded-md">
           <!-- Item Search -->
           <Link
             class="border-r flex-shrink-0 w-full"
@@ -46,12 +45,16 @@
             }"
             :border="true"
             :value="itemSearchTerm"
-            @keyup.enter="
-              async () => await addItem(await getItem(itemSearchTerm))
-            "
-            @change="(item: string) =>itemSearchTerm= item"
-          />
-          <ItemsTable @add-item="addItem" />
+            @keyup.enter="async () => {if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm))}"
+            @click="async () => {if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm))}"
+            @change="(item: string) => itemSearchTerm = item"
+            />
+            
+            <ItemsTable
+              @onAddItem="addItemToPOS"
+              @updateValues="addItemToPOS"
+              ref="itemsTableRef"
+            />
         </div>
       </div>
 
@@ -65,6 +68,7 @@
               :border="true"
               :value="sinvDoc.party"
               :df="sinvDoc.fieldMap.party"
+              @click="async () => {if (sinvDoc.party && sinvDoc.party.trim() !== '') await addCustomerItems(sinvDoc.party)}"
               @change="(value:string) => (sinvDoc.party = value)"
             />
 
@@ -126,8 +130,20 @@
                   />
                 </div>
               </div>
-
-              <div class="">
+              <!-- Pay and Cancel Buttons -->
+              <div class="" style="margin-bottom: 1rem;">
+                <Button
+                  class="mt-4 w-full bg-green-500 py-6"
+                  style="margin-top: 0.5rem; margin-bottom: 0.5rem;"
+                  :disabled="disablePayButton"
+                  @click="toggleModal('Payment', true)"
+                >
+                <slot>
+                    <p class="uppercase text-lg text-white font-semibold">
+                      {{ t`Pay` }}
+                    </p>
+                  </slot>
+                </Button>
                 <Button
                   class="w-full bg-red-500 py-6"
                   :disabled="!sinvDoc.items?.length"
@@ -139,25 +155,14 @@
                     </p>
                   </slot>
                 </Button>
-
-                <Button
-                  class="mt-4 w-full bg-green-500 py-6"
-                  :disabled="disablePayButton"
-                  @click="toggleModal('Payment', true)"
-                >
-                  <slot>
-                    <p class="uppercase text-lg text-white font-semibold">
-                      {{ t`Pay` }}
-                    </p>
-                  </slot>
-                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+    </div>
+
 </template>
 
 <script lang="ts">
@@ -199,6 +204,9 @@ import {
   validateShipment,
   validateSinv,
 } from 'src/utils/pos';
+import { Party } from 'models/baseModels/Party/Party';
+import { InvoiceItem } from 'models/baseModels/InvoiceItem/InvoiceItem';
+import { count } from 'console';
 
 export default defineComponent({
   name: 'POS',
@@ -214,6 +222,7 @@ export default defineComponent({
     PaymentModal,
     SelectedItemTable,
   },
+
   provide() {
     return {
       cashAmount: computed(() => this.cashAmount),
@@ -303,6 +312,10 @@ export default defineComponent({
     toggleSidebar(true);
   },
   methods: {
+    updateItemsTableSelection(selectedPriceList: string) {
+      // @ts-ignore
+      this.$refs.itemsTableRef.updateSelectedPriceList(selectedPriceList);
+    },
     setCashAmount(amount: Money) {
       this.cashAmount = amount;
     },
@@ -318,13 +331,17 @@ export default defineComponent({
     async setItemQtyMap() {
       this.itemQtyMap = await getItemQtyMap();
     },
-    setSinvDoc() {
-      this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
-        account: 'Debtors',
-        party: this.sinvDoc.party ?? this.defaultCustomer,
-        isPOS: true,
-      }) as SalesInvoice;
-    },
+    addItemToPOS(item: POSItem | Item | undefined) {
+    // Handle the logic to add the item to your POS component
+    this.addItem(item);
+  },
+  setSinvDoc(): void {
+  this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
+    account: 'Debtors',
+    party: this.sinvDoc.party ?? this.defaultCustomer,
+    isPOS: true,
+  }) as SalesInvoice;
+},
     setTotalQuantity() {
       this.totalQuantity = getTotalQuantity(
         this.sinvDoc.items as SalesInvoiceItem[]
@@ -403,6 +420,97 @@ export default defineComponent({
         rate: item.rate as Money,
         item: item.name,
       });
+    },
+    async addCustomerItems(customer: string | undefined) {
+      if (!customer) {
+        return;
+      }
+
+      //get the party
+      const party = (await this.fyo.doc.getDoc(
+        ModelNameEnum.Party,
+        customer)
+      ) as Party;
+
+      //get the party pricelist
+      const partyPL = (await this.fyo.getValue(
+        'Party',
+        customer,
+        'priceList'
+      )) as string;
+
+      //Remove existing items when a new customer is selected
+      if (this.sinvDoc.items && this.sinvDoc.items.length >= 1) {
+        for (let idx = this.sinvDoc.items.length - 1; idx >= 0; idx--) {
+          await this.sinvDoc.remove('items', idx);
+        }
+      }
+
+      if (partyPL && partyPL != '')
+      {
+        this.updateItemsTableSelection(partyPL);
+      //get the pricelist from the parties pricelist
+      const pl = await this.fyo.doc.getDoc(
+        ModelNameEnum.PriceList,
+        partyPL
+      );
+
+      for (const { item } of party.preferredItems as Item[]) {
+        let quantity = 1;
+        if (item) {
+          if (Array.isArray(party.preferredItems)) {
+            const qItem = party.preferredItems.find(
+              (qi: { item: any }) => qi.item === item
+            );
+
+            if (qItem.quantity != undefined && qItem.quantity >= 1) {
+              quantity = qItem.quantity;
+
+            }
+          };
+
+          if (Array.isArray(pl.priceListItem)) {
+            const plItem = pl.priceListItem.find(
+              (pli: { item: any }) => pli.item === item
+            );
+
+            // Handle the case where the item is not found in pl.priceListItem
+            const rate = plItem?.rate !== undefined ? plItem.rate : this.fyo.pesa(0);
+            const amount = rate.mul(quantity);
+
+
+              const posItem: POSItem = {
+              name: plItem.item || '',
+              rate: plItem?.rate?.float !== undefined ? plItem.rate : fyo.pesa(0),
+              unit: plItem.unit as string || '', // Make sure 'item.unit' is a string
+              hasBatch: !!plItem.hasBatch,
+              hasSerialNumber: !!plItem.hasSerialNumber,
+              priceList: partyPL,
+              availableQty: 1,
+            };
+
+
+            //add item using standard route
+            this.addItem(posItem);
+
+            // try {
+            //   await this.sinvDoc.append('items', {
+            //     name: plItem.name || '',
+            //     rate: plItem?.rate?.float !== undefined ? plItem.rate : fyo.pesa(0),
+            //     unit: plItem.unit as string || '', // Make sure 'item.unit' is a string
+            //     hasBatch: !!plItem.hasBatch,
+            //     hasSerialNumber: !!plItem.hasSerialNumber,
+            //   });
+            // } catch (error) {
+            //   showToast({
+            //     type: 'error',
+            //     message: t`${error as string}`,
+            //   });
+            // }
+          }
+        }
+      }
+    }
     },
     async createTransaction(shouldPrint = false) {
       try {

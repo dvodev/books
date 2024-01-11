@@ -225,7 +225,8 @@ export async function getPathAndMakePDF(
   name: string,
   innerHTML: string,
   width: number,
-  height: number
+  height: number,
+  shouldPrint: boolean = true
 ) {
   const { filePath: savePath } = await getSavePath(name, 'pdf');
   if (!savePath) {
@@ -234,11 +235,58 @@ export async function getPathAndMakePDF(
 
   const html = constructPrintDocument(innerHTML);
   const success = await ipc.makePDF(html, savePath, width, height);
+
+  if (shouldPrint) {
+    printDocumentUtility(html);
+  }
+
   if (success) {
     showExportInFolder(t`Save as PDF Successful`, savePath);
   } else {
     showToast({ message: t`Export Failed`, type: 'error' });
   }
+}
+
+export async function printDocumentUtility(
+  contentToPrint: string, 
+  ) {
+  // Construct HTML document for printing using the same formatting as save PDF
+  const printHTML = constructPrintDocument(contentToPrint);
+
+  // Open a new window and print the document
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(printHTML);
+    printWindow.document.close();
+    printWindow.print();
+  } else {
+    // Fallback to default printing behavior
+    window.print();
+  }
+
+  // Optionally handle other print-related actions
+  // ...
+
+  // Example: Log telemetry
+  // this.fyo.telemetry.log(Verb.Printed, this.printSchemaName);
+}
+function constructNewPrintDocument(innerHTML: string, width: number, height: number) {
+  const html = document.createElement('html');
+  const head = document.createElement('head');
+  const body = document.createElement('body');
+  const style = getAllCSSAsStyleElem();
+
+  head.innerHTML = [
+    '<meta charset="UTF-8">',
+    '<title>Print Window</title>',
+  ].join('\n');
+  head.append(style);
+
+  body.innerHTML = innerHTML;
+  html.setAttribute('style', `width: ${width}mm; height: ${height}mm;`);
+  html.append(head, body);
+
+  return html.outerHTML;
 }
 
 function constructPrintDocument(innerHTML: string) {
@@ -366,7 +414,48 @@ function getNameAndTypeFromTemplateFile(
     }
   );
 }
+export async function printDocument(doc: Doc, printValues: PrintValues): Promise<void> {
+  const name = doc.name ?? 'Untitled';
+  const innerHTML = await preparePrintHTML(doc, printValues);
 
+  // Open a new window and print the document
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(innerHTML);
+    printWindow.document.close();
+    printWindow.print();
+  } else {
+    // Fallback to default printing behavior
+    window.print();
+  }
+}
+
+async function preparePrintHTML(doc: Doc, printValues: PrintValues): Promise<string> {
+  const fyo = doc.fyo;
+  const template = getPrintTemplate(printValues.doc, printValues.print);
+
+  // Customize the HTML structure based on your needs
+  const html = `
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>${doc.name} - Print View</title>
+        ${getAllCSSAsStyleElem().outerHTML}
+      </head>
+      <body>
+        ${template}
+      </body>
+    </html>
+  `;
+
+  return html;
+}
+
+function getPrintTemplate(docValues: PrintTemplateData, printValues: PrintTemplateData): string {
+  // Implement logic to generate the print template based on docValues and printValues
+  // Example: Use a template string or a templating engine to interpolate values into the HTML
+  return baseTemplate; // Replace this with your actual template generation logic
+}
 export const baseTemplate = `<main class="h-full w-full bg-white">
 
   <!-- Edit This Code -->

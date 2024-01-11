@@ -51,7 +51,7 @@ import {
 } from '@vue/compiler-dom';
 import { Verb } from 'fyo/telemetry/types';
 import ErrorBoundary from 'src/components/ErrorBoundary.vue';
-import { getPathAndMakePDF } from 'src/utils/printTemplates';
+import { getPathAndMakePDF, printDocumentUtility } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import ScaledContainer from './ScaledContainer.vue';
@@ -161,6 +161,22 @@ export default defineComponent({
     },
     getCodeFrame(loc: SourceLocation) {
       return generateCodeFrame(this.template, loc.start.offset, loc.end.offset);
+    },
+    async printDocument() {
+      // Capture the content to be printed
+      const scaledContainer = this.$refs.scaledContainer;
+      // @ts-ignore
+      if (!scaledContainer || !scaledContainer.$el.children[0]) {
+        console.error('Scaled container or content not found.');
+        return;
+      }
+      // @ts-ignore
+      const contentToPrint = scaledContainer.$el.children[0].innerHTML;
+
+      // Call the utility method for printing
+      await printDocumentUtility(
+        contentToPrint
+        );
     },
     async savePDF(name?: string) {
       /* eslint-disable */

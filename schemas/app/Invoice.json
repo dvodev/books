@@ -170,7 +170,7 @@
     {
       "fieldname": "terms",
       "label": "Notes",
-      "placeholder": "Add invoice terms",
+      "placeholder": "Add Invoice Notes",
       "fieldtype": "Text",
       "section": "References"
     },
