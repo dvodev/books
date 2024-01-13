@@ -48,6 +48,7 @@
             @keyup.enter="async () => {if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm))}"
             @click="async () => {if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm))}"
             @change="(item: string) => itemSearchTerm = item"
+            style="z-index: 9999; position: relative;"
             />
             
             <ItemsTable
@@ -512,12 +513,15 @@ export default defineComponent({
       }
     }
     },
-    async createTransaction(shouldPrint = false) {
+    async createTransaction(shouldPrint = false, makePayment = false) {
       try {
         await this.validate();
         await this.submitSinvDoc(shouldPrint);
+        //add logic to save and not make payment
+        if (makePayment == true){
         await this.makePayment();
-        await this.makeStockTransfer();
+        }
+        // await this.makeStockTransfer();
         await this.afterTransaction();
       } catch (error) {
         showToast({

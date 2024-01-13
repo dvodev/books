@@ -17,7 +17,7 @@ export function getTestSetupWizardOptions(): SetupWizardOptions {
     fullname: 'Test Person',
     email: 'test@testmyfantasy.com',
     bankName: 'Test Bank of Scriptia',
-    currency: 'INR',
+    currency: 'USD',
     fiscalYearStart: DateTime.fromJSDate(
       getFiscalYear('04-01', true)!
     ).toISODate(),

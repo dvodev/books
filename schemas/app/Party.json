@@ -74,7 +74,7 @@
       "label": "Currency",
       "fieldtype": "Link",
       "target": "Currency",
-      "placeholder": "INR",
+      "placeholder": "USD",
       "create": true,
       "section": "Billing"
     },

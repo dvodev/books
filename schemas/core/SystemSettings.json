@@ -89,7 +89,7 @@
       "fieldname": "currency",
       "label": "Currency",
       "fieldtype": "AutoComplete",
-      "default": "INR",
+      "default": "USD",
       "readOnly": true,
       "required": true,
       "section": "Number Display"

@@ -2,7 +2,7 @@
   <!-- Add a dropdown for selecting the priceList -->
   <div class="flex items-center justify-between pe-2 rounded rounded focus-within:bg-gray-100 border border-gray-200 bg-gray-25">
     <div class="placeholder-option">
-      {{ selectedPriceList ? selectedPriceList : 'Select Price List:' }}
+      {{ selectedPriceList ? selectedPriceList : 'Price List:' }}
     </div>
     <select class="text-base focus:outline-none w-full placeholder-gray-500 px-3 py-2 text-gray-900 bg-transparent" v-model="selectedPriceList" @change="loadItems">
       <option disabled value="" hidden></option>
@@ -12,12 +12,16 @@
 
 <!-- Add a Row for displaying column labels -->
 <Row :ratio="ratio" class="border flex items-center mt-4 px-2 rounded-t-md text-gray-600 w-full sticky top-0 bg-white z-10">
-  <div v-for="df in tableFields" :key="df.fieldname" class="flex items-center px-2 py-2 text-lg" :class="{
-    'ms-auto': isNumeric(df as Field),
-  }" :style="{ height: '2rem', minWidth: '50px', flex: '1 0 auto' }"> <!-- Adjust the minWidth value as needed -->
-    {{ df.label }}
-  </div>
-</Row>
+    <div
+      v-for="df in tableFields"
+      :key="df.fieldname"
+      class="flex items-center px-2 py-2 text-lg"
+      :class="{ 'ms-auto': isNumeric(df as Field) }"
+      :style="{ height: '2rem', minWidth: getColumnMinWidth(df.fieldname), flex: '1 0 auto', marginLeft: '3rem' }"
+    >
+      {{ df.label }}
+    </div>
+  </Row>
 
 <div class="overflow-y-auto" style="height: 72.5vh; display: flex; flex-direction: column;">
 
@@ -30,25 +34,18 @@
     :border="true"
     class="border-b border-l border-r flex group h-row-mid hover:bg-gray-25 items-center justify-center px-2 w-full"
     @click="handleChange(row as POSItem)"
-    >
-    <div
-    v-for="(df, index) in tableFields"
-    :key="df.fieldname"
-    class="resizable-column"
-    :style="{ minWidth: columnWidths[index] + 'px', flex: '1 0 auto', marginRight: index === 1 ? '20px' : '0' }"
-    @mousedown.prevent="startResizing($event, index)"
   >
-    <FormControl
-      :df="df"
-      :value="(row as any)[df.fieldname]"
-      :readOnly="true"
-    />
     <div
-      class="resize-handle"
+      v-for="(df, index) in tableFields"
+      :key="df.fieldname"
+      class="resizable-column"
+      :style="{ flex: '1 0 auto', marginLeft: index >= 1 ? '3rem' : '0', minWidth:  index < 1 ? '170px' : '100px' }"
       @mousedown.prevent="startResizing($event, index)"
-    ></div>
-  </div>
-    </Row>
+    >
+      <FormControl :df="df" :value="(row as any)[df.fieldname]" :readOnly="true" />
+      <div class="resize-handle" @mousedown.prevent="startResizing($event, index)"></div>
+    </div>
+  </Row>
   </div>
 </template>
 <script lang="ts">
@@ -74,7 +71,20 @@ export default defineComponent({
     updateSelectedPriceList(selectedPL: string) {
       this.selectedPriceList = selectedPL;
       this.loadItems();
-    }
+    },
+    getColumnMinWidth(fieldName: string) {
+      // Adjust the minWidth values based on the fieldname or any other criteria
+      switch (fieldName) {
+        case 'Item':
+          return 200; // Adjust the value as needed
+        case 'Rate':
+          return 100; // Adjust the value as needed
+        case 'Unit':
+          return 100; // Adjust the value as needed
+        default:
+          return 100; // Default value
+      }
+    },
   },
   props: {
     sinvDoc: Object as () => SalesInvoice,
@@ -85,7 +95,7 @@ export default defineComponent({
     const selectedPriceList = ref(props.priceList || '');
     const priceLists = ref([] as PriceList[]);
     const items = ref([] as POSItem[]);
-    const columnWidths = ref([250, 100, 20, 100]); // Initial widths for each column
+    const columnWidths = ref([200, 100, 100]); // Initial widths for each column
 
     const startResizing = (event: MouseEvent, index: number) => {
       const startX = event.clientX;
@@ -190,14 +200,14 @@ export default defineComponent({
         target: 'UOM',
         readOnly: true,
       },
-      {
-        fieldname: 'priceList',
-        label: 'Price List',
-        placeholder: 'Price List',
-        fieldtype: 'Link',
-        target: 'PriceList',
-        readOnly: true,
-      },
+      // {
+      //   fieldname: 'priceList',
+      //   label: 'Price List',
+      //   placeholder: 'Price List',
+      //   fieldtype: 'Link',
+      //   target: 'PriceList',
+      //   readOnly: true,
+      // },
     ] as Field[];
 
     const handleChange = (value: POSItem) => {
@@ -235,5 +245,9 @@ export default defineComponent({
   white-space: nowrap;
 
  }
+ .px-3 {
+    padding-left: 0.75rem;
+    padding-right: 3rem;
+}
 
 </style>

@@ -168,8 +168,8 @@
           <Button
             class="w-full bg-blue-500"
             style="padding: 1.35rem"
-            :disabled="disableSubmitButton"
-            @click="$emit('createTransaction')"
+            :disabled="false"
+            @click="$emit('createTransaction', false, true)"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
@@ -182,12 +182,26 @@
           <Button
             class="w-full bg-green-500"
             style="padding: 1.35rem"
-            :disabled="disableSubmitButton"
-            @click="$emit('createTransaction', true)"
+            :disabled="false"
+            @click="$emit('createTransaction', true, true)"
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
                 {{ t`Submit & Print` }}
+              </p>
+            </slot>
+          </Button>
+        </div>
+        <div class="col-span-1">
+          <Button
+            class="w-full bg-yellow-500"
+            style="padding: 1.35rem"
+            :disabled="false"
+            @click="$emit('createTransaction', true, false)"
+          >
+            <slot>
+              <p class="uppercase text-lg text-white font-semibold">
+                {{ t`Save` }}
               </p>
             </slot>
           </Button>
