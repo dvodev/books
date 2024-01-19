@@ -221,8 +221,7 @@ export default defineComponent({
     OpenPOSShiftModal,
     PageHeader,
     PaymentModal,
-    SelectedItemTable,
-    Barcode,
+    SelectedItemTable
   },
 
   provide() {

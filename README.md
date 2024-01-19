@@ -142,7 +142,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 
 ## Maintainers
 
-Frappe Books is currently being maintained by [Mildred Ki'Lya](https://github.com/mildred) and [Isaac-GC](https://github.com/Isaac-GC).
+GDC is currently being maintained by [Mildred Ki'Lya](https://github.com/mildred) and [Isaac-GC](https://github.com/Isaac-GC).
 
 ## Translation Contributors
 
