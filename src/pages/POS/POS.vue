@@ -132,10 +132,10 @@
                 </div>
               </div>
               <!-- Pay and Cancel Buttons -->
-              <div class="" style="margin-bottom: 1rem;">
+              <div class="" style="margin-bottom: 1.5rem;">
                 <Button
                   class="mt-4 w-full bg-green-500 py-6"
-                  style="margin-top: 0.5rem; margin-bottom: 0.5rem;"
+                  style="margin-top: 0.75rem; margin-bottom: 0.75rem;"
                   :disabled="disablePayButton"
                   @click="toggleModal('Payment', true)"
                 >

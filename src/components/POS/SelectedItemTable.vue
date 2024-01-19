@@ -19,7 +19,7 @@
     </div>
   </Row>
 
-  <div class="overflow-y-visible" style="height: 50vh">
+  <div class="overflow-y-auto" style="height: 50vh">
     <Row
       v-for="row in sinvDoc.items"
       :ratio="ratio"

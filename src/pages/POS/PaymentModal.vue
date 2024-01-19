@@ -173,7 +173,7 @@
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Submit` }}
+                {{ t`Pay` }}
               </p>
             </slot>
           </Button>
@@ -187,7 +187,7 @@
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Submit & Print` }}
+                {{ t`Pay & Print` }}
               </p>
             </slot>
           </Button>
@@ -201,7 +201,7 @@
           >
             <slot>
               <p class="uppercase text-lg text-white font-semibold">
-                {{ t`Save` }}
+                {{ t`Submit` }}
               </p>
             </slot>
           </Button>
