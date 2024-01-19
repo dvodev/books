@@ -222,6 +222,7 @@ export default defineComponent({
     PageHeader,
     PaymentModal,
     SelectedItemTable,
+    Barcode,
   },
 
   provide() {

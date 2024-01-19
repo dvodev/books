@@ -216,6 +216,13 @@
     >
       <SetPrintSize :doc="doc" @done="showSizeModal = !showSizeModal" />
     </Modal>
+    <Modal
+      v-if="doc"
+      :open-modal="showTypeModal"
+      @closemodal="showTypeModal = !showTypeModal"
+    >
+      <SetType :doc="doc" @done="showTypeModal = !showTypeModal" />
+    </Modal>
   </div>
 </template>
 <script lang="ts">
@@ -259,6 +266,7 @@ import { getMapFromList } from 'utils/index';
 import { computed, defineComponent, inject, ref } from 'vue';
 import PrintContainer from './PrintContainer.vue';
 import SetPrintSize from './SetPrintSize.vue';
+import SetType from './SetType.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
 
@@ -276,6 +284,7 @@ export default defineComponent({
     Link,
     Modal,
     SetPrintSize,
+    SetType,
   },
   provide() {
     return { doc: computed(() => this.doc) };
@@ -306,6 +315,7 @@ export default defineComponent({
       scale: 0.6,
       panelWidth: 22 /** rem */ * 16 /** px */,
       templateChanged: false,
+      showTypeModal: false,
       showSizeModal: false,
       preEditMode: {
         scale: 0.6,
@@ -318,6 +328,7 @@ export default defineComponent({
       hints?: PrintTemplateHint;
       values: null | PrintValues;
       displayDoc: PrintTemplate | null;
+      showTypeModal: boolean;
       showSizeModal: boolean;
       scale: number;
       panelWidth: number;
@@ -369,6 +380,14 @@ export default defineComponent({
           await openSettings(ModelNameEnum.PrintSettings);
         },
       });
+
+      if (this.doc.isCustom && !this.showTypeModal) {
+        actions.push({
+          label: this.t`Set Template Type`,
+          group: this.t`Action`,
+          action: () => (this.showTypeModal = true),
+        });
+      }
 
       if (this.doc.isCustom && !this.showSizeModal) {
         actions.push({
