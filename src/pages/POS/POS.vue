@@ -8,54 +8,28 @@
       </slot>
     </PageHeader>
 
-    <OpenPOSShiftModal
-      v-if="!isPosShiftOpen"
-      :open-modal="!isPosShiftOpen"
-      @toggle-modal="toggleModal"
-    />
+    <OpenPOSShiftModal v-if="!isPosShiftOpen" :open-modal="!isPosShiftOpen" @toggle-modal="toggleModal" />
 
-    <ClosePOSShiftModal
-      :open-modal="openShiftCloseModal"
-      @toggle-modal="toggleModal"
-    />
+    <ClosePOSShiftModal :open-modal="openShiftCloseModal" @toggle-modal="toggleModal" />
 
-    <PaymentModal
-      :open-modal="openPaymentModal"
-      @create-transaction="createTransaction"
-      @toggle-modal="toggleModal"
-      @set-cash-amount="setCashAmount"
-      @set-transfer-amount="setTransferAmount"
-      @set-transfer-ref-no="setTransferRefNo"
-      @set-transfer-clearance-date="setTransferClearanceDate"
-    />
-    <div
-      class="bg-gray-25 gap-2 grid grid-cols-12 p-4"
-      style="height: calc(100vh - var(--h-row-largest))"
-    >
+    <PaymentModal :open-modal="openPaymentModal" @create-transaction="createTransaction" @toggle-modal="toggleModal"
+      @set-cash-amount="setCashAmount" @set-transfer-amount="setTransferAmount" @set-transfer-ref-no="setTransferRefNo"
+      @set-transfer-clearance-date="setTransferClearanceDate" />
+    <div class="bg-gray-25 gap-2 grid grid-cols-12 p-4" style="height: calc(100vh - var(--h-row-largest))">
       <div class="bg-white border col-span-5 rounded-md">
         <div class="bg-white border grow h-full p-4 rounded-md">
           <!-- Item Search -->
-          <Link
-            class="border-r flex-shrink-0 w-full"
-            :df="{
-              label: t`Search an Item`,
-              fieldtype: 'Link',
-              fieldname: 'item',
-              target: 'Item',
-            }"
-            :border="true"
-            :value="itemSearchTerm"
-            @keyup.enter="async () => {if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm))}"
-            @click="async () => {if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm))}"
-            @change="(item: string) => itemSearchTerm = item"
-            style="z-index: 9999; position: relative;"
-            />
-            
-            <ItemsTable
-              @onAddItem="addItemToPOS"
-              @updateValues="addItemToPOS"
-              ref="itemsTableRef"
-            />
+          <Link class="border-r flex-shrink-0 w-full" :df="{
+            label: t`Search an Item`,
+            fieldtype: 'Link',
+            fieldname: 'item',
+            target: 'Item',
+          }" :border="true" :value="itemSearchTerm"
+            @keyup.enter="async () => { if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm)) }"
+            @click="async () => { if (itemSearchTerm && itemSearchTerm.trim() !== '') await addItem(await getItem(itemSearchTerm)) }"
+            @change="(item: string) => itemSearchTerm = item" style="z-index: 9999; position: relative;" />
+
+          <ItemsTable @onAddItem="addItemToPOS" @updateValues="addItemToPOS" ref="itemsTableRef" />
         </div>
       </div>
 
@@ -63,93 +37,56 @@
         <div class="flex flex-col gap-3" style="height: calc(100vh - 6rem)">
           <div class="bg-white border grow h-full p-4 rounded-md">
             <!-- Customer Search -->
-            <Link
-              v-if="sinvDoc.fieldMap"
-              class="flex-shrink-0"
-              :border="true"
-              :value="sinvDoc.party"
+            <Link v-if="sinvDoc.fieldMap" class="flex-shrink-0" :border="true" :value="sinvDoc.party"
               :df="sinvDoc.fieldMap.party"
-              @click="async () => {if (sinvDoc.party && sinvDoc.party.trim() !== '') await addCustomerItems(sinvDoc.party)}"
-              @change="(value:string) => (sinvDoc.party = value)"
-            />
+              @click="async () => { if (sinvDoc.party && sinvDoc.party.trim() !== '') await addCustomerItems(sinvDoc.party) }"
+              @change="(value: string) => (sinvDoc.party = value)" />
 
             <SelectedItemTable />
           </div>
 
-          <div class="bg-white border p-4 rounded-md">
+          <div class="bg-white border p-4 rounded-md" style="display: contents;">
             <div class="w-full grid grid-cols-2 gap-y-2 gap-x-3">
               <div class="">
                 <div class="grid grid-cols-2 gap-2">
-                  <FloatingLabelFloatInput
-                    :df="{
-                      label: t`Total Quantity`,
-                      fieldtype: 'Int',
-                      fieldname: 'totalQuantity',
-                      minvalue: 0,
-                      maxvalue: 1000,
-                    }"
-                    size="large"
-                    :value="totalQuantity"
-                    :read-only="true"
-                    :text-right="true"
-                  />
+                  <FloatingLabelFloatInput :df="{
+                    label: t`Total Quantity`,
+                    fieldtype: 'Int',
+                    fieldname: 'totalQuantity',
+                    minvalue: 0,
+                    maxvalue: 1000,
+                  }" size="large" :value="totalQuantity" :read-only="true" :text-right="true" />
 
-                  <FloatingLabelCurrencyInput
-                    :df="{
-                      label: t`Add'l Discounts`,
-                      fieldtype: 'Int',
-                      fieldname: 'additionalDiscount',
-                      minvalue: 0,
-                    }"
-                    size="large"
-                    :value="additionalDiscounts"
-                    :read-only="true"
-                    :text-right="true"
-                    @change="(amount:Money)=> additionalDiscounts= amount"
-                  />
+                  <FloatingLabelCurrencyInput :df="{
+                    label: t`Add'l Discounts`,
+                    fieldtype: 'Int',
+                    fieldname: 'additionalDiscount',
+                    minvalue: 0,
+                  }" size="large" :value="additionalDiscounts" :read-only="true" :text-right="true"
+                    @change="(amount: Money) => additionalDiscounts = amount" />
                 </div>
 
                 <div class="mt-4 grid grid-cols-2 gap-2">
-                  <FloatingLabelCurrencyInput
-                    :df="{
-                      label: t`Item Discounts`,
-                      fieldtype: 'Currency',
-                      fieldname: 'itemDiscounts',
-                    }"
-                    size="large"
-                    :value="itemDiscounts"
-                    :read-only="true"
-                    :text-right="true"
-                  />
-                  <FloatingLabelCurrencyInput
-                    v-if="sinvDoc.fieldMap"
-                    :df="sinvDoc.fieldMap.grandTotal"
-                    size="large"
-                    :value="sinvDoc.grandTotal"
-                    :read-only="true"
-                    :text-right="true"
-                  />
+                  <FloatingLabelCurrencyInput :df="{
+                    label: t`Item Discounts`,
+                    fieldtype: 'Currency',
+                    fieldname: 'itemDiscounts',
+                  }" size="large" :value="itemDiscounts" :read-only="true" :text-right="true" />
+                  <FloatingLabelCurrencyInput v-if="sinvDoc.fieldMap" :df="sinvDoc.fieldMap.grandTotal" size="large"
+                    :value="sinvDoc.grandTotal" :read-only="true" :text-right="true" />
                 </div>
               </div>
               <!-- Pay and Cancel Buttons -->
               <div class="" style="margin-bottom: 1.5rem;">
-                <Button
-                  class="mt-4 w-full bg-green-500 py-6"
-                  style="margin-top: 0.75rem; margin-bottom: 0.75rem;"
-                  :disabled="disablePayButton"
-                  @click="toggleModal('Payment', true)"
-                >
-                <slot>
+                <Button class="mt-4 w-full bg-green-500 py-6" style="margin-top: 0.75rem; margin-bottom: 0.75rem;"
+                  :disabled="disablePayButton" @click="toggleModal('Payment', true)">
+                  <slot>
                     <p class="uppercase text-lg text-white font-semibold">
                       {{ t`Pay` }}
                     </p>
                   </slot>
                 </Button>
-                <Button
-                  class="w-full bg-red-500 py-6"
-                  :disabled="!sinvDoc.items?.length"
-                  @click="clearValues"
-                >
+                <Button class="w-full bg-red-500 py-6" :disabled="!sinvDoc.items?.length" @click="clearValues">
                   <slot>
                     <p class="uppercase text-lg text-white font-semibold">
                       {{ t`Cancel` }}
@@ -162,8 +99,7 @@
         </div>
       </div>
     </div>
-    </div>
-
+  </div>
 </template>
 
 <script lang="ts">
@@ -333,16 +269,16 @@ export default defineComponent({
       this.itemQtyMap = await getItemQtyMap();
     },
     addItemToPOS(item: POSItem | Item | undefined) {
-    // Handle the logic to add the item to your POS component
-    this.addItem(item);
-  },
-  setSinvDoc(): void {
-  this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
-    account: 'Debtors',
-    party: this.sinvDoc.party ?? this.defaultCustomer,
-    isPOS: true,
-  }) as SalesInvoice;
-},
+      // Handle the logic to add the item to your POS component
+      this.addItem(item);
+    },
+    setSinvDoc(): void {
+      this.sinvDoc = this.fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
+        account: 'Debtors',
+        party: this.sinvDoc.party ?? this.defaultCustomer,
+        isPOS: true,
+      }) as SalesInvoice;
+    },
     setTotalQuantity() {
       this.totalQuantity = getTotalQuantity(
         this.sinvDoc.items as SalesInvoiceItem[]
@@ -447,79 +383,78 @@ export default defineComponent({
         }
       }
 
-      if (partyPL && partyPL != '')
-      {
+      if (partyPL && partyPL != '') {
         this.updateItemsTableSelection(partyPL);
-      //get the pricelist from the parties pricelist
-      const pl = await this.fyo.doc.getDoc(
-        ModelNameEnum.PriceList,
-        partyPL
-      );
+        //get the pricelist from the parties pricelist
+        const pl = await this.fyo.doc.getDoc(
+          ModelNameEnum.PriceList,
+          partyPL
+        );
 
-      for (const { item } of party.preferredItems as Item[]) {
-        let quantity = 1;
-        if (item) {
-          if (Array.isArray(party.preferredItems)) {
-            const qItem = party.preferredItems.find(
-              (qi: { item: any }) => qi.item === item
-            );
+        for (const { item } of party.preferredItems as Item[]) {
+          let quantity = 1;
+          if (item) {
+            if (Array.isArray(party.preferredItems)) {
+              const qItem = party.preferredItems.find(
+                (qi: { item: any }) => qi.item === item
+              );
 
-            if (qItem.quantity != undefined && qItem.quantity >= 1) {
-              quantity = qItem.quantity;
+              if (qItem.quantity != undefined && qItem.quantity >= 1) {
+                quantity = qItem.quantity;
 
-            }
-          };
+              }
+            };
 
-          if (Array.isArray(pl.priceListItem)) {
-            const plItem = pl.priceListItem.find(
-              (pli: { item: any }) => pli.item === item
-            );
+            if (Array.isArray(pl.priceListItem)) {
+              const plItem = pl.priceListItem.find(
+                (pli: { item: any }) => pli.item === item
+              );
 
-            // Handle the case where the item is not found in pl.priceListItem
-            const rate = plItem?.rate !== undefined ? plItem.rate : this.fyo.pesa(0);
-            const amount = rate.mul(quantity);
+              // Handle the case where the item is not found in pl.priceListItem
+              const rate = plItem?.rate !== undefined ? plItem.rate : this.fyo.pesa(0);
+              const amount = rate.mul(quantity);
 
 
               const posItem: POSItem = {
-              name: plItem.item || '',
-              rate: plItem?.rate?.float !== undefined ? plItem.rate : fyo.pesa(0),
-              unit: plItem.unit as string || '', // Make sure 'item.unit' is a string
-              hasBatch: !!plItem.hasBatch,
-              hasSerialNumber: !!plItem.hasSerialNumber,
-              priceList: partyPL,
-              availableQty: 1,
-            };
+                name: plItem.item || '',
+                rate: plItem?.rate?.float !== undefined ? plItem.rate : fyo.pesa(0),
+                unit: plItem.unit as string || '', // Make sure 'item.unit' is a string
+                hasBatch: !!plItem.hasBatch,
+                hasSerialNumber: !!plItem.hasSerialNumber,
+                priceList: partyPL,
+                availableQty: 1,
+              };
 
 
-            //add item using standard route
-            this.addItem(posItem);
+              //add item using standard route
+              this.addItem(posItem);
 
-            // try {
-            //   await this.sinvDoc.append('items', {
-            //     name: plItem.name || '',
-            //     rate: plItem?.rate?.float !== undefined ? plItem.rate : fyo.pesa(0),
-            //     unit: plItem.unit as string || '', // Make sure 'item.unit' is a string
-            //     hasBatch: !!plItem.hasBatch,
-            //     hasSerialNumber: !!plItem.hasSerialNumber,
-            //   });
-            // } catch (error) {
-            //   showToast({
-            //     type: 'error',
-            //     message: t`${error as string}`,
-            //   });
-            // }
+              // try {
+              //   await this.sinvDoc.append('items', {
+              //     name: plItem.name || '',
+              //     rate: plItem?.rate?.float !== undefined ? plItem.rate : fyo.pesa(0),
+              //     unit: plItem.unit as string || '', // Make sure 'item.unit' is a string
+              //     hasBatch: !!plItem.hasBatch,
+              //     hasSerialNumber: !!plItem.hasSerialNumber,
+              //   });
+              // } catch (error) {
+              //   showToast({
+              //     type: 'error',
+              //     message: t`${error as string}`,
+              //   });
+              // }
+            }
           }
         }
       }
-    }
     },
     async createTransaction(shouldPrint = false, makePayment = false) {
       try {
         await this.validate();
         await this.submitSinvDoc(shouldPrint);
         //add logic to save and not make payment
-        if (makePayment == true){
-        await this.makePayment();
+        if (makePayment == true) {
+          await this.makePayment();
         }
         // await this.makeStockTransfer();
         await this.afterTransaction();

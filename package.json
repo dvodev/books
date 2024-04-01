@@ -3,7 +3,7 @@
   "version": "0.20.0",
   "description": "Bookeeping, Invoicing, POS, and customer/product management.",
   "author": {
-    "name": "Vulia Solutions LLC",
+    "name": "Vulia Solutions LLC.",
     "email": "vuliasolutions@gmail.com"
   },
   "scripts": {
@@ -90,7 +90,7 @@
   },
   "homepage": "https://vuliasolutions.com",
   "repository": {
-    "url": "https://github.com/dvoso/books"
+    "url": "https://github.com/dvodev/books"
   },
   "license": "AGPL-3.0-only"
 }

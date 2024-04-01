@@ -77,6 +77,11 @@ export async function handleError(
   more: Record<string, unknown> = {},
   notifyUser = true
 ) {
+    // Check if the error message contains "No published versions on GitHub"
+    if (error.message.includes("No published versions on GitHub") ) {
+      return;
+    }
+
   if (logToConsole) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -108,7 +113,10 @@ export async function handleErrorWithDialog(
 
   const errorMessage = getErrorMessage(error, doc);
   await handleError(false, error, { errorMessage, doc });
-
+  // Check if the error message contains "No published versions on GitHub"
+  if (error.message.includes("No published versions on GitHub")) {
+    return;
+  }
   const label = getErrorLabel(error);
   const options: DialogOptions = {
     title: label,
@@ -119,13 +127,6 @@ export async function handleErrorWithDialog(
   if (reportError) {
     options.detail = truncate(String(options.detail), { length: 128 });
     options.buttons = [
-      {
-        label: t`Report`,
-        action() {
-          reportIssue(getErrorLogObject(error, { errorMessage }));
-        },
-        isPrimary: true,
-      },
       {
         label: t`Cancel`,
         action() {
@@ -193,7 +194,7 @@ export function getErrorHandledSync<T extends (...args: any[]) => any>(
 }
 
 function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
-  const baseUrl = 'https://github.com/dvoso/books/issues/new?labels=bug';
+  const baseUrl = 'https://github.com/dvodev/books/issues/new?labels=bug';
 
   const body = [
     '<h2>Description</h2>',
@@ -228,6 +229,10 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
 }
 
 export function reportIssue(errorLogObj?: ErrorLog) {
+      // Check if the error message contains "No published versions on GitHub"
+      if (errorLogObj?.message.includes("No published versions on GitHub")){
+        return;
+      }
   const urlQuery = getIssueUrlQuery(errorLogObj);
   ipc.openExternalUrl(urlQuery);
 }

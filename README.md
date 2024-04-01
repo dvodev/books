@@ -8,7 +8,7 @@
 ![Platforms](https://img.shields.io/badge/platform-mac%2C%20windows%2C%20linux-yellowgreen)
 [![Publish](https://github.com/frappe/books/actions/workflows/publish.yml/badge.svg)](https://github.com/dvoso/books/actions/workflows/publish.yml)
 
-Free Desktop book-keeping software for small businesses and freelancers.
+Desktop book-keeping software for small businesses and freelancers.
 
 [vuliasolutions.com](https://vuliasolutions.com/)
 
